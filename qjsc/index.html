@@ -7,9 +7,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>公寓岗小助手</title>
+    <title>请假信息生成器</title>
     <style>
-      /* 保持原有样式不变 */
       * {
         box-sizing: border-box;
         -webkit-tap-highlight-color: transparent;
@@ -65,6 +64,31 @@
 
       .form-group {
         margin-bottom: 20px;
+      }
+
+      .time-group {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .time-group span {
+        color: #666;
+        font-weight: 600;
+      }
+
+      .time-input {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        background-color: #fff;
+      }
+
+      .time-input:focus {
+        outline: none;
+        border-color: #2196f3;
       }
 
       label {
@@ -204,6 +228,10 @@
         font-weight: bold;
         color: #1976d2;
       }
+
+      #tempTimeGroup {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -245,7 +273,6 @@
         <label>具体日期</label>
         <input type="text" id="date" readonly />
       </div>
-      <!-- 其他表单内容保持不变 -->
       <div class="form-group">
         <label>班次</label>
         <select id="shift">
@@ -265,11 +292,20 @@
       </div>
       <div class="form-group">
         <label>请假类型</label>
-        <select id="leaveType">
+        <select id="leaveType" onchange="toggleTempTimeGroup()">
           <option value="请假">请假</option>
           <option value="请假不当">请假不当</option>
           <option value="接班">接班</option>
+          <option value="临时请假">临时请假</option>
         </select>
+      </div>
+      <div id="tempTimeGroup" class="form-group">
+        <label>临时请假时间</label>
+        <div class="time-group">
+          <input type="time" id="startTime" class="time-input" />
+          <span>至</span>
+          <input type="time" id="endTime" class="time-input" />
+        </div>
       </div>
       <div id="result"></div>
       <div class="bottom-spacing"></div>
@@ -290,7 +326,6 @@
         const grid = document.getElementById("position-grid");
         for (let i = 1; i <= 27; i++) {
           if (i === 5) {
-            // 特殊处理5号楼栋
             const buttonA = document.createElement("button");
             const buttonB = document.createElement("button");
             buttonA.textContent = "5A#";
@@ -309,6 +344,13 @@
             grid.appendChild(button);
           }
         }
+      }
+
+      function toggleTempTimeGroup() {
+        const leaveType = document.getElementById("leaveType").value;
+        const tempTimeGroup = document.getElementById("tempTimeGroup");
+        tempTimeGroup.style.display =
+          leaveType === "临时请假" ? "block" : "none";
       }
 
       function selectPosition(position) {
@@ -336,12 +378,12 @@
         };
 
         const today = new Date();
-        const currentDay = today.getDay(); // 0是周日，1是周一
+        const currentDay = today.getDay();
         const targetDay = days[dayName];
 
         let diff = targetDay - currentDay;
-        if (targetDay === 0) diff = 7 - currentDay; // 处理周日的特殊情况
-        if (diff <= 0) diff += 7; // 如果目标日期在本周但已过去，取下周的日期
+        if (targetDay === 0) diff = 7 - currentDay;
+        if (diff <= 0) diff += 7;
 
         const targetDate = new Date(today);
         targetDate.setDate(today.getDate() + diff);
@@ -370,6 +412,21 @@
         document.getElementById("date").value = dateStr;
       }
 
+      function calculateTimeDifference(start, end) {
+        const [startHours, startMinutes] = start.split(":").map(Number);
+        const [endHours, endMinutes] = end.split(":").map(Number);
+
+        let diffMinutes =
+          endHours * 60 + endMinutes - (startHours * 60 + startMinutes);
+
+        // 如果结束时间小于开始时间，假设跨天，加24小时
+        if (diffMinutes < 0) {
+          diffMinutes += 24 * 60;
+        }
+
+        return diffMinutes;
+      }
+
       function generateMessage() {
         const datePrefix = document.getElementById("datePrefix").value;
         const date = document.getElementById("date").value;
@@ -382,7 +439,18 @@
           return;
         }
 
-        const message = `请假：${datePrefix}（${date}）${shift} ${selectedPosition} ${name} ${leaveType}`;
+        let message = `请假：${datePrefix}（${date}）${shift} ${selectedPosition} ${name} ${leaveType}`;
+
+        if (leaveType === "临时请假") {
+          const startTime = document.getElementById("startTime").value;
+          const endTime = document.getElementById("endTime").value;
+          if (!startTime || !endTime) {
+            alert("请填写临时请假时间！");
+            return;
+          }
+          const diffMinutes = calculateTimeDifference(startTime, endTime);
+          message += ` ${diffMinutes}mins (${startTime}-${endTime})`;
+        }
 
         const resultDiv = document.getElementById("result");
         resultDiv.innerHTML = `
@@ -413,6 +481,7 @@
       window.onload = function () {
         updateDate();
         initializePositionGrid();
+        toggleTempTimeGroup();
       };
     </script>
   </body>
