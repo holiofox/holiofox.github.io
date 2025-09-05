@@ -1,270 +1,184 @@
-window.addEventListener("load", () => {
-  let loadFlag = false;
-  let dataObj = [];
-  const $searchMask = document.getElementById("search-mask");
+var searchCache = null;
+var searchCacheKey = 'search_cache_v1';
 
-  const openSearch = () => {
-    const bodyStyle = document.body.style;
-    bodyStyle.width = "100%";
-    bodyStyle.overflow = "hidden";
-    anzhiyu.animateIn($searchMask, "to_show 0.5s");
-    anzhiyu.animateIn(document.querySelector("#local-search .search-dialog"), "titleScale 0.5s");
-    setTimeout(() => {
-      document.querySelector("#local-search-input input").focus();
-    }, 100);
-    if (!loadFlag) {
-      search();
-      loadFlag = true;
-    }
-    // shortcut: ESC
-    document.addEventListener("keydown", function f(event) {
-      if (event.code === "Escape") {
-        closeSearch();
-        document.removeEventListener("keydown", f);
+var searchFunc = function(path, filter, wrapperId, searchId, contentId) {
+
+  function getAllCombinations(keywords) {
+    const result = [];
+    const maxLen = 3; // 组合最大长度
+    for (let i = 0; i < keywords.length; i++) {
+      for (let j = i + 1; j <= Math.min(i + maxLen, keywords.length); j++) {
+        result.push(keywords.slice(i, j).join(" "));
       }
-    });
-  };
-
-  const closeSearch = () => {
-    const bodyStyle = document.body.style;
-    bodyStyle.width = "";
-    bodyStyle.overflow = "";
-    anzhiyu.animateOut(document.querySelector("#local-search .search-dialog"), "search_close .5s");
-    anzhiyu.animateOut($searchMask, "to_hide 0.5s");
-  };
-
-  const searchClickFn = () => {
-    document.querySelector("#search-button > .search").addEventListener("click", openSearch);
-    document.querySelector("#menu-search").addEventListener("click", openSearch);
-  };
-
-  const searchClickFnOnce = () => {
-    document.querySelector("#local-search .search-close-button").addEventListener("click", closeSearch);
-    $searchMask.addEventListener("click", closeSearch);
-    if (GLOBAL_CONFIG.localSearch.preload) dataObj = fetchData(GLOBAL_CONFIG.localSearch.path);
-  };
-
-  // check url is json or not
-  const isJson = url => {
-    const reg = /\.json$/;
-    return reg.test(url);
-  };
-
-  const fetchData = async path => {
-    let data = [];
-    const response = await fetch(path);
-    if (isJson(path)) {
-      data = await response.json();
-    } else {
-      const res = await response.text();
-      const t = await new window.DOMParser().parseFromString(res, "text/xml");
-      const a = await t;
-
-      data = [...a.querySelectorAll("entry")].map(item => {
-        let tagsArr = [];
-        if (item.querySelector("tags") && item.querySelector("tags").getElementsByTagName("tag")) {
-          Array.prototype.forEach.call(item.querySelector("tags").getElementsByTagName("tag"), function (item, index) {
-            tagsArr.push(item.textContent);
-          });
-        }
-        let content = item.querySelector("content") && item.querySelector("content").textContent;
-        let imgReg = /<img.*?(?:>|\/>)/gi; //匹配图片中的img标签
-        let srcReg = /src=[\'\"]?([^\'\"]*)[\'\"]?/i; // 匹配图片中的src
-        let arr = content.match(imgReg); //筛选出所有的img
-
-        let srcArr = [];
-        if (arr) {
-          for (let i = 0; i < arr.length; i++) {
-            let src = arr[i].match(srcReg);
-            // 获取图片地址
-            if (!src[1].indexOf("http")) srcArr.push(src[1]);
-          }
-        }
-
-        return {
-          title: item.querySelector("title").textContent,
-          content: content,
-          url: item.querySelector("url").textContent,
-          tags: tagsArr,
-          oneImage: srcArr && srcArr[0],
-        };
-      });
     }
-    if (response.ok) {
-      const $loadDataItem = document.getElementById("loading-database");
-      $loadDataItem.nextElementSibling.style.display = "block";
-      $loadDataItem.remove();
-    }
-    return data;
-  };
+    return result;
+  }
 
-  const search = () => {
-    if (!GLOBAL_CONFIG.localSearch.preload) {
-      dataObj = fetchData(GLOBAL_CONFIG.localSearch.path);
-    }
-    const $input = document.querySelector("#local-search-input input");
-    const $resultContent = document.getElementById("local-search-results");
-    const $loadingStatus = document.getElementById("loading-status");
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
 
-    $input.addEventListener("input", function () {
-      const keywords = this.value.trim().toLowerCase().split(/[\s]+/);
-      if (keywords[0] !== "")
-        $loadingStatus.innerHTML = '<i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i>';
+  function initSearch(datas) {
+    var $input = document.getElementById(searchId);
+    if (!$input) { return; }
+    if ($input._searchInitialized) return; // 防止重复绑定
+    $input._searchInitialized = true;
 
+    var $resultContent = document.getElementById(contentId);
+    var $wrapper = document.getElementById(wrapperId);
+
+    $input.addEventListener("input", function() {
+      var resultList = [];
+      var keywords = getAllCombinations(this.value.trim().toLowerCase().split(" "))
+        .sort(function(a,b) { return b.split(" ").length - a.split(" ").length; });
       $resultContent.innerHTML = "";
-      let str = '<div class="search-result-list">';
-      if (keywords.length <= 0) return;
-      let count = 0;
-      // perform local searching
-      dataObj.then(data => {
-        data.forEach(data => {
-          let isMatch = true;
-          let dataTitle = data.title ? data.title.trim().toLowerCase() : "";
-          let dataTags = data.tags;
-          let oneImage = data.oneImage ?? "";
-          const dataContent = data.content
-            ? data.content
-                .trim()
-                .replace(/<[^>]+>/g, "")
-                .toLowerCase()
-            : "";
-          const dataUrl = data.url.startsWith("/") ? data.url : GLOBAL_CONFIG.root + data.url;
-          let indexTitle = -1;
-          let indexContent = -1;
-          let firstOccur = -1;
-          // only match articles with not empty titles and contents
-          if (dataTitle !== "" || dataContent !== "") {
-            keywords.forEach((keyword, i) => {
-              indexTitle = dataTitle.indexOf(keyword);
-              indexContent = dataContent.indexOf(keyword);
-              if (indexTitle < 0 && indexContent < 0) {
-                isMatch = false;
-              } else {
-                if (indexContent < 0) {
-                  indexContent = 0;
-                }
-                if (i === 0) {
-                  firstOccur = indexContent;
-                }
-              }
-            });
-          } else {
-            isMatch = false;
-          }
+      if (this.value.trim().length <= 0) {
+        $wrapper.setAttribute('searching', 'false');
+        return;
+      }
+      $wrapper.setAttribute('searching', 'true');
 
-          // show search results
-          if (isMatch) {
-            if (firstOccur >= 0) {
-              // cut out 130 characters
-              // let start = firstOccur - 30 < 0 ? 0 : firstOccur - 30
-              // let end = firstOccur + 50 > dataContent.length ? dataContent.length : firstOccur + 50
-              let start = firstOccur - 30;
-              let end = firstOccur + 100;
-              let pre = "";
-              let post = "";
+      datas.forEach(function(data) {
+        if (!data.content?.trim().length) return;
+        if (filter && !data.path.includes(filter)) return;
 
-              if (start < 0) {
-                start = 0;
-              }
+        var matches = 0;
+        var dataTitle = data.title?.trim() || 'Untitled';
+        var dataTitleLowerCase = dataTitle.toLowerCase();
+        var dataContent = data.content;
+        var dataContentLowerCase = dataContent.toLowerCase();
+        var dataUrl = data.path.startsWith('//') ? data.path.slice(1) : data.path;
+        dataUrl = dataUrl.replace(/\/?index\.html$/, '/'); // index.html → /
+        dataUrl = dataUrl.replace(/\.html$/, '/'); // xxx.html → xxx/
+        
+        var indexTitle = -1;
+        var indexContent = -1;
+        var firstOccur = -1;
 
-              if (start === 0) {
-                end = 100;
-              } else {
-                pre = "...";
-              }
-
-              if (end > dataContent.length) {
-                end = dataContent.length;
-              } else {
-                post = "...";
-              }
-
-              let matchContent = dataContent.substring(start, end);
-
-              // highlight all keywords
-              keywords.forEach(keyword => {
-                const regS = new RegExp(keyword, "gi");
-                matchContent = matchContent.replace(regS, '<span class="search-keyword">' + keyword + "</span>");
-                dataTitle = dataTitle.replace(regS, '<span class="search-keyword">' + keyword + "</span>");
-              });
-
-              str += '<div class="local-search__hit-item">';
-              if (oneImage) {
-                str += `<div class="search-left"><img src=${oneImage} alt=${dataTitle} data-fancybox='gallery'>`;
-              } else {
-                str += '<div class="search-left" style="width:0">';
-              }
-
-              str += "</div>";
-
-              if (oneImage) {
-                str +=
-                  '<div class="search-right"><a href="' +
-                  dataUrl +
-                  '" class="search-result-title">' +
-                  dataTitle +
-                  "</a>";
-              } else {
-                str +=
-                  '<div class="search-right" style="width: 100%"><a href="' +
-                  dataUrl +
-                  '" class="search-result-title">' +
-                  dataTitle +
-                  "</a>";
-              }
-
-              count += 1;
-
-              if (dataContent !== "") {
-                str +=
-                  '<p class="search-result" onclick="pjax.loadUrl(`' +
-                  dataUrl +
-                  '`)">' +
-                  pre +
-                  matchContent +
-                  post +
-                  "</p>";
-              }
-              if (dataTags.length) {
-                str += '<div class="search-result-tags">';
-
-                for (let i = 0; i < dataTags.length; i++) {
-                  const element = dataTags[i].trim();
-
-                  str +=
-                    '<a class="tag-list" href="/tags/' +
-                    element +
-                    '/" data-pjax-state="" one-link-mark="yes">#' +
-                    element +
-                    "</a>";
-                }
-
-                str += "</div>";
-              }
-            }
-            str += "</div></div>";
+        keywords.forEach(function(keyword) {
+          indexTitle = dataTitleLowerCase.indexOf(keyword);
+          indexContent = dataContentLowerCase.indexOf(keyword);
+          if (indexTitle >= 0 || indexContent >= 0) {
+            matches += 1;
+            if (indexContent < 0) indexContent = 0;
+            if (firstOccur < 0) firstOccur = indexContent;
           }
         });
-        if (count === 0) {
-          str +=
-            '<div id="local-search__hits-empty">' +
-            GLOBAL_CONFIG.localSearch.languages.hits_empty.replace(/\$\{query}/, this.value.trim()) +
-            "</div>";
+
+        if (matches > 0) {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = dataUrl;
+
+          const titleSpan = document.createElement('span');
+          titleSpan.className = 'search-result-title';
+          titleSpan.textContent = dataTitle;
+          a.appendChild(titleSpan);
+
+          if (firstOccur >= 0) {
+            var start = Math.max(0, firstOccur - 20);
+            var end = Math.min(dataContent.length, firstOccur + 80);
+            if (start === 0) end = 100;
+            var matchContent = dataContent.substring(start, end);
+
+            var regS = new RegExp(keywords.map(escapeRegExp).join("|"), "gi");
+            matchContent = matchContent.replace(regS, function(keyword) {
+              return "<span class=\"search-keyword\">" + keyword + "</span>";
+            });
+
+            const para = document.createElement('p');
+            para.className = 'search-result-content';
+            para.innerHTML = matchContent + '...';
+            a.appendChild(para);
+          }
+
+          li.appendChild(a);
+          resultList.push({ rank: matches, element: li });
         }
-        str += "</div>";
-        $resultContent.innerHTML = str;
-        if (keywords[0] !== "") $loadingStatus.innerHTML = "";
-        window.pjax && window.pjax.refresh($resultContent);
       });
+
+      if (resultList.length) {
+        resultList.sort(function(a, b) {
+          return b.rank - a.rank;
+        });
+
+        const ul = document.createElement('ul');
+        ul.className = 'search-result-list';
+        resultList.forEach(function(item) {
+          ul.appendChild(item.element);
+        });
+
+        $resultContent.innerHTML = '';
+        $resultContent.appendChild(ul);
+      }
     });
-  };
+  }
 
-  searchClickFn();
-  searchClickFnOnce();
+  if (!searchCache) {
+    // 数据还没准备好，延迟初始化
+    const timer = setInterval(() => {
+      if (searchCache) {
+        clearInterval(timer);
+        initSearch(searchCache);
+      }
+    }, 100);
+  } else {
+    initSearch(searchCache);
+  }
+};
 
-  // pjax
-  window.addEventListener("pjax:complete", () => {
-    !anzhiyu.isHidden($searchMask) && closeSearch();
-    searchClickFn();
+utils.jq(() => {
+  (function preloadSearchData() {
+    var path = ctx.search.path;
+    if (path.startsWith('/')) {
+      path = path.substring(1);
+    }
+    path = ctx.root + path;
+
+    try {
+      var cached = localStorage.getItem(searchCacheKey);
+      if (cached) {
+        searchCache = JSON.parse(cached);
+      }
+    } catch (e) {
+      console.warn('搜索缓存解析失败', e);
+    }
+
+    fetch(path)
+      .then(res => res.json())
+      .then(json => {
+        searchCache = json;
+        try {
+          localStorage.setItem(searchCacheKey, JSON.stringify(json));
+        } catch (e) {
+          console.warn('搜索缓存写入失败', e);
+        }
+      });
+  })();
+
+  var $inputArea = $("input#search-input");
+  if ($inputArea.length == 0) return;
+  var $resultArea = document.querySelector("div#search-result");
+
+  $inputArea.focus(function() {
+    var path = ctx.search.path;
+    if (path.startsWith('/')) {
+      path = path.substring(1);
+    }
+    path = ctx.root + path;
+    const filter = $inputArea.attr('data-filter') || '';
+    searchFunc(path, filter, 'search-wrapper', 'search-input', 'search-result');
   });
+
+  $inputArea.keydown(function(e) {
+    if (e.which == 13) {
+      e.preventDefault();
+    }
+  });
+
+  const observer = new MutationObserver(function(mutationsList) {
+    const hasResults = $resultArea.querySelector(".search-result-list li");
+    $('.search-wrapper').toggleClass('noresult', !hasResults);
+  });
+  observer.observe($resultArea, { childList: true, subtree: true });
 });
