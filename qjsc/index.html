@@ -1,1 +1,1311 @@
-{"layout":"false","_content":"\n<!DOCTYPE html>\n<html lang=\"zh\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta\n      name=\"viewport\"\n      content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\"\n    />\n    <title>公寓岗小助手</title>\n    <style>\n      * {\n        box-sizing: border-box;\n        -webkit-tap-highlight-color: transparent;\n      }\n\n      body {\n        font-family: system-ui, -apple-system, sans-serif;\n        margin: 0;\n        padding: 16px;\n        background-color: #f5f5f5;\n        font-size: 16px;\n      }\n\n      .container {\n        max-width: 600px;\n        margin: 0 auto;\n        background-color: #ffffff;\n        border-radius: 12px;\n        padding: 20px;\n        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);\n      }\n\n      /* 新增常用链接样式 */\n      .quick-links {\n        display: flex;\n        gap: 12px;\n        margin-bottom: 24px;\n      }\n\n      .quick-link-btn {\n        flex: 1;\n        padding: 14px;\n        border: none;\n        border-radius: 8px;\n        font-size: 1rem;\n        font-weight: 600;\n        color: white;\n        background-color: #2196f3;\n        cursor: pointer;\n        transition: all 0.2s;\n      }\n\n      .quick-link-btn:active {\n        background-color: #1976d2;\n      }\n\n      h2 {\n        text-align: center;\n        margin: 0 0 24px 0;\n        color: #333;\n        font-size: 1.5rem;\n      }\n\n      .form-group {\n        margin-bottom: 20px;\n      }\n\n      .time-group {\n        display: flex;\n        gap: 12px;\n        align-items: center;\n      }\n\n      .time-group span {\n        color: #666;\n        font-weight: 600;\n      }\n\n      .time-input {\n        flex: 1;\n        padding: 12px;\n        border: 2px solid #ddd;\n        border-radius: 8px;\n        font-size: 1rem;\n        background-color: #fff;\n      }\n\n      .time-input:focus {\n        outline: none;\n        border-color: #2196f3;\n      }\n\n      label {\n        display: block;\n        margin-bottom: 8px;\n        font-weight: 600;\n        color: #444;\n        font-size: 1rem;\n      }\n\n      select,\n      input {\n        width: 100%;\n        padding: 12px;\n        border: 2px solid #ddd;\n        border-radius: 8px;\n        font-size: 1rem;\n        appearance: none;\n        -webkit-appearance: none;\n        background-color: #fff;\n      }\n\n      select {\n        background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\");\n        background-repeat: no-repeat;\n        background-position: right 12px center;\n        background-size: 16px;\n        padding-right: 40px;\n      }\n\n      input:focus,\n      select:focus {\n        outline: none;\n        border-color: #2196f3;\n      }\n\n      #date {\n        background-color: #f8f8f8;\n        color: #666;\n      }\n\n      .button-group {\n        display: flex;\n        flex-direction: column;\n        gap: 12px;\n        margin-top: 24px;\n      }\n\n      button {\n        width: 100%;\n        padding: 16px;\n        border: none;\n        border-radius: 8px;\n        font-size: 1rem;\n        font-weight: 600;\n        color: white;\n        cursor: pointer;\n        transition: all 0.2s;\n        -webkit-tap-highlight-color: transparent;\n      }\n\n      .generate-btn {\n        background-color: #2196f3;\n      }\n\n      .generate-btn:active {\n        background-color: #1976d2;\n      }\n\n      .copy-button {\n        background-color: #4caf50;\n      }\n\n      .copy-button:active {\n        background-color: #45a049;\n      }\n\n      .position-grid {\n        display: grid;\n        grid-template-columns: repeat(6, 1fr);\n        gap: 8px;\n        margin-top: 8px;\n      }\n\n      .position-btn {\n        padding: 12px 4px;\n        background-color: #f0f0f0;\n        color: #333;\n        font-size: 0.9rem;\n        font-weight: normal;\n      }\n\n      .position-btn.selected {\n        background-color: #2196f3;\n        color: white;\n      }\n\n      .result {\n        margin-top: 24px;\n        padding: 16px;\n        background-color: #f8f8f8;\n        border-radius: 8px;\n        word-break: break-all;\n      }\n\n      .result p {\n        margin: 8px 0;\n        line-height: 1.5;\n      }\n\n      .result p:last-child {\n        font-size: 1.1rem;\n        font-weight: 600;\n        color: #333;\n      }\n\n      .fixed-bottom {\n        position: fixed;\n        bottom: 0;\n        left: 0;\n        right: 0;\n        padding: 12px 16px;\n        background-color: #fff;\n        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);\n      }\n\n      .bottom-spacing {\n        height: 80px;\n      }\n\n      .selected-position {\n        margin-top: 12px;\n        padding: 8px;\n        background-color: #e3f2fd;\n        border-radius: 4px;\n        text-align: center;\n        font-weight: bold;\n        color: #1976d2;\n      }\n\n      #tempTimeGroup {\n        display: none;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"container\">\n      <h2>主管常用表格</h2>\n\n      <!-- 新增常用链接栏目 -->\n      <div class=\"quick-links\">\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DVUhRTGJKS3hTdkFx'\"\n        >\n          排班表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DS2poZEhocEFEb1pS?tab=zwbgiy'\"\n        >\n          空岗表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DVVpLd0ZTRnhLa1Fz'\"\n        >\n          裸辞表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DS0pWdlRvRkl0bG5Q'\"\n        >\n          黑名单\n        </button>\n      </div>\n      <h2>请假信息生成器</h2>\n      <div class=\"form-group\">\n        <label>日期标记</label>\n        <select id=\"datePrefix\" onchange=\"updateDate()\">\n          <option value=\"今天\">今天</option>\n          <option value=\"明天\">明天</option>\n          <option value=\"后天\">后天</option>\n          <option value=\"本周一\">周一</option>\n          <option value=\"本周二\">周二</option>\n          <option value=\"本周三\">周三</option>\n          <option value=\"本周四\">周四</option>\n          <option value=\"本周五\">周五</option>\n          <option value=\"本周六\">周六</option>\n          <option value=\"本周日\">周日</option>\n        </select>\n      </div>\n      <div class=\"form-group\">\n        <label>具体日期</label>\n        <input type=\"text\" id=\"date\" readonly />\n      </div>\n      <div class=\"form-group\">\n        <label>班次</label>\n        <select id=\"shift\">\n          <option value=\"早班\">早班</option>\n          <option value=\"午班\">午班</option>\n          <option value=\"晚班\">晚班</option>\n        </select>\n      </div>\n      <div class=\"form-group\">\n        <label>楼栋号</label>\n        <div id=\"position-grid\" class=\"position-grid\"></div>\n        <div id=\"selected-position\" class=\"selected-position\">请选择楼栋号</div>\n      </div>\n      <div class=\"form-group\">\n        <label>姓名</label>\n        <input type=\"text\" id=\"name\" placeholder=\"请输入姓名\" />\n      </div>\n      <div class=\"form-group\">\n        <label>请假类型</label>\n        <select id=\"leaveType\" onchange=\"toggleTempTimeGroup()\">\n          <option value=\"请假\">请假</option>\n          <option value=\"请假不当\">请假不当</option>\n          <option value=\"接班\">接班</option>\n          <option value=\"临时请假\">临时请假</option>\n        </select>\n      </div>\n      <div id=\"tempTimeGroup\" class=\"form-group\">\n        <label>临时请假时间</label>\n        <div class=\"time-group\">\n          <input type=\"time\" id=\"startTime\" class=\"time-input\" />\n          <span>至</span>\n          <input type=\"time\" id=\"endTime\" class=\"time-input\" />\n        </div>\n      </div>\n      <div id=\"result\"></div>\n      <div class=\"bottom-spacing\"></div>\n    </div>\n\n    <div class=\"fixed-bottom\">\n      <div class=\"button-group\">\n        <button class=\"generate-btn\" onclick=\"generateMessage()\">\n          生成请假信息\n        </button>\n      </div>\n    </div>\n\n    <script>\n      let selectedPosition = \"\";\n\n      function initializePositionGrid() {\n        const grid = document.getElementById(\"position-grid\");\n        for (let i = 1; i <= 27; i++) {\n          if (i === 5) {\n            const buttonA = document.createElement(\"button\");\n            const buttonB = document.createElement(\"button\");\n            buttonA.textContent = \"5A#\";\n            buttonB.textContent = \"5B#\";\n            buttonA.className = \"position-btn\";\n            buttonB.className = \"position-btn\";\n            buttonA.onclick = () => selectPosition(\"5A#\");\n            buttonB.onclick = () => selectPosition(\"5B#\");\n            grid.appendChild(buttonA);\n            grid.appendChild(buttonB);\n          } else {\n            const button = document.createElement(\"button\");\n            button.textContent = `${i}#`;\n            button.className = \"position-btn\";\n            button.onclick = () => selectPosition(`${i}#`);\n            grid.appendChild(button);\n          }\n        }\n      }\n\n      function toggleTempTimeGroup() {\n        const leaveType = document.getElementById(\"leaveType\").value;\n        const tempTimeGroup = document.getElementById(\"tempTimeGroup\");\n        tempTimeGroup.style.display =\n          leaveType === \"临时请假\" ? \"block\" : \"none\";\n      }\n\n      function selectPosition(position) {\n        selectedPosition = position;\n        document.querySelectorAll(\".position-btn\").forEach((btn) => {\n          btn.classList.remove(\"selected\");\n          if (btn.textContent === position) {\n            btn.classList.add(\"selected\");\n          }\n        });\n        document.getElementById(\n          \"selected-position\"\n        ).textContent = `已选择: ${position}`;\n      }\n\n      function getDateOfWeek(dayName) {\n        const days = {\n          本周一: 1,\n          本周二: 2,\n          本周三: 3,\n          本周四: 4,\n          本周五: 5,\n          本周六: 6,\n          本周日: 0,\n        };\n\n        const today = new Date();\n        const currentDay = today.getDay();\n        const targetDay = days[dayName];\n\n        let diff = targetDay - currentDay;\n        if (targetDay === 0) diff = 7 - currentDay;\n        if (diff <= 0) diff += 7;\n\n        const targetDate = new Date(today);\n        targetDate.setDate(today.getDate() + diff);\n\n        return `${targetDate.getMonth() + 1}.${targetDate.getDate()}`;\n      }\n\n      function getDateByOffset(offset) {\n        const date = new Date();\n        date.setDate(date.getDate() + offset);\n        return `${date.getMonth() + 1}.${date.getDate()}`;\n      }\n\n      function updateDate() {\n        const datePrefix = document.getElementById(\"datePrefix\").value;\n        let dateStr;\n\n        if (datePrefix.startsWith(\"本周\")) {\n          dateStr = getDateOfWeek(datePrefix);\n        } else {\n          const offset =\n            datePrefix === \"明天\" ? 1 : datePrefix === \"后天\" ? 2 : 0;\n          dateStr = getDateByOffset(offset);\n        }\n\n        document.getElementById(\"date\").value = dateStr;\n      }\n\n      function calculateTimeDifference(start, end) {\n        const [startHours, startMinutes] = start.split(\":\").map(Number);\n        const [endHours, endMinutes] = end.split(\":\").map(Number);\n\n        let diffMinutes =\n          endHours * 60 + endMinutes - (startHours * 60 + startMinutes);\n\n        // 如果结束时间小于开始时间，假设跨天，加24小时\n        if (diffMinutes < 0) {\n          diffMinutes += 24 * 60;\n        }\n\n        return diffMinutes;\n      }\n\n      function generateMessage() {\n        const datePrefix = document.getElementById(\"datePrefix\").value;\n        const date = document.getElementById(\"date\").value;\n        const shift = document.getElementById(\"shift\").value;\n        const name = document.getElementById(\"name\").value;\n        const leaveType = document.getElementById(\"leaveType\").value;\n\n        if (!selectedPosition || !name) {\n          alert(\"请填写完整信息！\");\n          return;\n        }\n\n        let message = `请假：${datePrefix}（${date}）${shift} ${selectedPosition} ${name} ${leaveType}`;\n\n        if (leaveType === \"临时请假\") {\n          const startTime = document.getElementById(\"startTime\").value;\n          const endTime = document.getElementById(\"endTime\").value;\n          if (!startTime || !endTime) {\n            alert(\"请填写临时请假时间！\");\n            return;\n          }\n          const diffMinutes = calculateTimeDifference(startTime, endTime);\n          message += ` ${diffMinutes}mins (${startTime}-${endTime})`;\n        }\n\n        const resultDiv = document.getElementById(\"result\");\n        resultDiv.innerHTML = `\n          <div class=\"result\">\n            <p>生成的信息：</p>\n            <p>${message}</p>\n          </div>\n          <div class=\"button-group\">\n            <button onclick=\"copyToClipboard('${message}')\" class=\"copy-button\">复制到剪贴板</button>\n          </div>\n        `;\n\n        resultDiv.scrollIntoView({ behavior: \"smooth\" });\n      }\n\n      function copyToClipboard(text) {\n        navigator.clipboard\n          .writeText(text)\n          .then(() => {\n            alert(\"已复制到剪贴板！\");\n          })\n          .catch((err) => {\n            alert(\"复制失败，请手动复制。\");\n            console.error(\"复制失败:\", err);\n          });\n      }\n\n      window.onload = function () {\n        updateDate();\n        initializePositionGrid();\n        toggleTempTimeGroup();\n      };\n    </script>\n  </body>\n</html>\n","source":"qjsc/index.html","raw":"---\nlayout: false\n---\n\n<!DOCTYPE html>\n<html lang=\"zh\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta\n      name=\"viewport\"\n      content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\"\n    />\n    <title>公寓岗小助手</title>\n    <style>\n      * {\n        box-sizing: border-box;\n        -webkit-tap-highlight-color: transparent;\n      }\n\n      body {\n        font-family: system-ui, -apple-system, sans-serif;\n        margin: 0;\n        padding: 16px;\n        background-color: #f5f5f5;\n        font-size: 16px;\n      }\n\n      .container {\n        max-width: 600px;\n        margin: 0 auto;\n        background-color: #ffffff;\n        border-radius: 12px;\n        padding: 20px;\n        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);\n      }\n\n      /* 新增常用链接样式 */\n      .quick-links {\n        display: flex;\n        gap: 12px;\n        margin-bottom: 24px;\n      }\n\n      .quick-link-btn {\n        flex: 1;\n        padding: 14px;\n        border: none;\n        border-radius: 8px;\n        font-size: 1rem;\n        font-weight: 600;\n        color: white;\n        background-color: #2196f3;\n        cursor: pointer;\n        transition: all 0.2s;\n      }\n\n      .quick-link-btn:active {\n        background-color: #1976d2;\n      }\n\n      h2 {\n        text-align: center;\n        margin: 0 0 24px 0;\n        color: #333;\n        font-size: 1.5rem;\n      }\n\n      .form-group {\n        margin-bottom: 20px;\n      }\n\n      .time-group {\n        display: flex;\n        gap: 12px;\n        align-items: center;\n      }\n\n      .time-group span {\n        color: #666;\n        font-weight: 600;\n      }\n\n      .time-input {\n        flex: 1;\n        padding: 12px;\n        border: 2px solid #ddd;\n        border-radius: 8px;\n        font-size: 1rem;\n        background-color: #fff;\n      }\n\n      .time-input:focus {\n        outline: none;\n        border-color: #2196f3;\n      }\n\n      label {\n        display: block;\n        margin-bottom: 8px;\n        font-weight: 600;\n        color: #444;\n        font-size: 1rem;\n      }\n\n      select,\n      input {\n        width: 100%;\n        padding: 12px;\n        border: 2px solid #ddd;\n        border-radius: 8px;\n        font-size: 1rem;\n        appearance: none;\n        -webkit-appearance: none;\n        background-color: #fff;\n      }\n\n      select {\n        background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\");\n        background-repeat: no-repeat;\n        background-position: right 12px center;\n        background-size: 16px;\n        padding-right: 40px;\n      }\n\n      input:focus,\n      select:focus {\n        outline: none;\n        border-color: #2196f3;\n      }\n\n      #date {\n        background-color: #f8f8f8;\n        color: #666;\n      }\n\n      .button-group {\n        display: flex;\n        flex-direction: column;\n        gap: 12px;\n        margin-top: 24px;\n      }\n\n      button {\n        width: 100%;\n        padding: 16px;\n        border: none;\n        border-radius: 8px;\n        font-size: 1rem;\n        font-weight: 600;\n        color: white;\n        cursor: pointer;\n        transition: all 0.2s;\n        -webkit-tap-highlight-color: transparent;\n      }\n\n      .generate-btn {\n        background-color: #2196f3;\n      }\n\n      .generate-btn:active {\n        background-color: #1976d2;\n      }\n\n      .copy-button {\n        background-color: #4caf50;\n      }\n\n      .copy-button:active {\n        background-color: #45a049;\n      }\n\n      .position-grid {\n        display: grid;\n        grid-template-columns: repeat(6, 1fr);\n        gap: 8px;\n        margin-top: 8px;\n      }\n\n      .position-btn {\n        padding: 12px 4px;\n        background-color: #f0f0f0;\n        color: #333;\n        font-size: 0.9rem;\n        font-weight: normal;\n      }\n\n      .position-btn.selected {\n        background-color: #2196f3;\n        color: white;\n      }\n\n      .result {\n        margin-top: 24px;\n        padding: 16px;\n        background-color: #f8f8f8;\n        border-radius: 8px;\n        word-break: break-all;\n      }\n\n      .result p {\n        margin: 8px 0;\n        line-height: 1.5;\n      }\n\n      .result p:last-child {\n        font-size: 1.1rem;\n        font-weight: 600;\n        color: #333;\n      }\n\n      .fixed-bottom {\n        position: fixed;\n        bottom: 0;\n        left: 0;\n        right: 0;\n        padding: 12px 16px;\n        background-color: #fff;\n        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);\n      }\n\n      .bottom-spacing {\n        height: 80px;\n      }\n\n      .selected-position {\n        margin-top: 12px;\n        padding: 8px;\n        background-color: #e3f2fd;\n        border-radius: 4px;\n        text-align: center;\n        font-weight: bold;\n        color: #1976d2;\n      }\n\n      #tempTimeGroup {\n        display: none;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"container\">\n      <h2>主管常用表格</h2>\n\n      <!-- 新增常用链接栏目 -->\n      <div class=\"quick-links\">\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DVUhRTGJKS3hTdkFx'\"\n        >\n          排班表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DS2poZEhocEFEb1pS?tab=zwbgiy'\"\n        >\n          空岗表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DVVpLd0ZTRnhLa1Fz'\"\n        >\n          裸辞表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DS0pWdlRvRkl0bG5Q'\"\n        >\n          黑名单\n        </button>\n      </div>\n      <h2>请假信息生成器</h2>\n      <div class=\"form-group\">\n        <label>日期标记</label>\n        <select id=\"datePrefix\" onchange=\"updateDate()\">\n          <option value=\"今天\">今天</option>\n          <option value=\"明天\">明天</option>\n          <option value=\"后天\">后天</option>\n          <option value=\"本周一\">周一</option>\n          <option value=\"本周二\">周二</option>\n          <option value=\"本周三\">周三</option>\n          <option value=\"本周四\">周四</option>\n          <option value=\"本周五\">周五</option>\n          <option value=\"本周六\">周六</option>\n          <option value=\"本周日\">周日</option>\n        </select>\n      </div>\n      <div class=\"form-group\">\n        <label>具体日期</label>\n        <input type=\"text\" id=\"date\" readonly />\n      </div>\n      <div class=\"form-group\">\n        <label>班次</label>\n        <select id=\"shift\">\n          <option value=\"早班\">早班</option>\n          <option value=\"午班\">午班</option>\n          <option value=\"晚班\">晚班</option>\n        </select>\n      </div>\n      <div class=\"form-group\">\n        <label>楼栋号</label>\n        <div id=\"position-grid\" class=\"position-grid\"></div>\n        <div id=\"selected-position\" class=\"selected-position\">请选择楼栋号</div>\n      </div>\n      <div class=\"form-group\">\n        <label>姓名</label>\n        <input type=\"text\" id=\"name\" placeholder=\"请输入姓名\" />\n      </div>\n      <div class=\"form-group\">\n        <label>请假类型</label>\n        <select id=\"leaveType\" onchange=\"toggleTempTimeGroup()\">\n          <option value=\"请假\">请假</option>\n          <option value=\"请假不当\">请假不当</option>\n          <option value=\"接班\">接班</option>\n          <option value=\"临时请假\">临时请假</option>\n        </select>\n      </div>\n      <div id=\"tempTimeGroup\" class=\"form-group\">\n        <label>临时请假时间</label>\n        <div class=\"time-group\">\n          <input type=\"time\" id=\"startTime\" class=\"time-input\" />\n          <span>至</span>\n          <input type=\"time\" id=\"endTime\" class=\"time-input\" />\n        </div>\n      </div>\n      <div id=\"result\"></div>\n      <div class=\"bottom-spacing\"></div>\n    </div>\n\n    <div class=\"fixed-bottom\">\n      <div class=\"button-group\">\n        <button class=\"generate-btn\" onclick=\"generateMessage()\">\n          生成请假信息\n        </button>\n      </div>\n    </div>\n\n    <script>\n      let selectedPosition = \"\";\n\n      function initializePositionGrid() {\n        const grid = document.getElementById(\"position-grid\");\n        for (let i = 1; i <= 27; i++) {\n          if (i === 5) {\n            const buttonA = document.createElement(\"button\");\n            const buttonB = document.createElement(\"button\");\n            buttonA.textContent = \"5A#\";\n            buttonB.textContent = \"5B#\";\n            buttonA.className = \"position-btn\";\n            buttonB.className = \"position-btn\";\n            buttonA.onclick = () => selectPosition(\"5A#\");\n            buttonB.onclick = () => selectPosition(\"5B#\");\n            grid.appendChild(buttonA);\n            grid.appendChild(buttonB);\n          } else {\n            const button = document.createElement(\"button\");\n            button.textContent = `${i}#`;\n            button.className = \"position-btn\";\n            button.onclick = () => selectPosition(`${i}#`);\n            grid.appendChild(button);\n          }\n        }\n      }\n\n      function toggleTempTimeGroup() {\n        const leaveType = document.getElementById(\"leaveType\").value;\n        const tempTimeGroup = document.getElementById(\"tempTimeGroup\");\n        tempTimeGroup.style.display =\n          leaveType === \"临时请假\" ? \"block\" : \"none\";\n      }\n\n      function selectPosition(position) {\n        selectedPosition = position;\n        document.querySelectorAll(\".position-btn\").forEach((btn) => {\n          btn.classList.remove(\"selected\");\n          if (btn.textContent === position) {\n            btn.classList.add(\"selected\");\n          }\n        });\n        document.getElementById(\n          \"selected-position\"\n        ).textContent = `已选择: ${position}`;\n      }\n\n      function getDateOfWeek(dayName) {\n        const days = {\n          本周一: 1,\n          本周二: 2,\n          本周三: 3,\n          本周四: 4,\n          本周五: 5,\n          本周六: 6,\n          本周日: 0,\n        };\n\n        const today = new Date();\n        const currentDay = today.getDay();\n        const targetDay = days[dayName];\n\n        let diff = targetDay - currentDay;\n        if (targetDay === 0) diff = 7 - currentDay;\n        if (diff <= 0) diff += 7;\n\n        const targetDate = new Date(today);\n        targetDate.setDate(today.getDate() + diff);\n\n        return `${targetDate.getMonth() + 1}.${targetDate.getDate()}`;\n      }\n\n      function getDateByOffset(offset) {\n        const date = new Date();\n        date.setDate(date.getDate() + offset);\n        return `${date.getMonth() + 1}.${date.getDate()}`;\n      }\n\n      function updateDate() {\n        const datePrefix = document.getElementById(\"datePrefix\").value;\n        let dateStr;\n\n        if (datePrefix.startsWith(\"本周\")) {\n          dateStr = getDateOfWeek(datePrefix);\n        } else {\n          const offset =\n            datePrefix === \"明天\" ? 1 : datePrefix === \"后天\" ? 2 : 0;\n          dateStr = getDateByOffset(offset);\n        }\n\n        document.getElementById(\"date\").value = dateStr;\n      }\n\n      function calculateTimeDifference(start, end) {\n        const [startHours, startMinutes] = start.split(\":\").map(Number);\n        const [endHours, endMinutes] = end.split(\":\").map(Number);\n\n        let diffMinutes =\n          endHours * 60 + endMinutes - (startHours * 60 + startMinutes);\n\n        // 如果结束时间小于开始时间，假设跨天，加24小时\n        if (diffMinutes < 0) {\n          diffMinutes += 24 * 60;\n        }\n\n        return diffMinutes;\n      }\n\n      function generateMessage() {\n        const datePrefix = document.getElementById(\"datePrefix\").value;\n        const date = document.getElementById(\"date\").value;\n        const shift = document.getElementById(\"shift\").value;\n        const name = document.getElementById(\"name\").value;\n        const leaveType = document.getElementById(\"leaveType\").value;\n\n        if (!selectedPosition || !name) {\n          alert(\"请填写完整信息！\");\n          return;\n        }\n\n        let message = `请假：${datePrefix}（${date}）${shift} ${selectedPosition} ${name} ${leaveType}`;\n\n        if (leaveType === \"临时请假\") {\n          const startTime = document.getElementById(\"startTime\").value;\n          const endTime = document.getElementById(\"endTime\").value;\n          if (!startTime || !endTime) {\n            alert(\"请填写临时请假时间！\");\n            return;\n          }\n          const diffMinutes = calculateTimeDifference(startTime, endTime);\n          message += ` ${diffMinutes}mins (${startTime}-${endTime})`;\n        }\n\n        const resultDiv = document.getElementById(\"result\");\n        resultDiv.innerHTML = `\n          <div class=\"result\">\n            <p>生成的信息：</p>\n            <p>${message}</p>\n          </div>\n          <div class=\"button-group\">\n            <button onclick=\"copyToClipboard('${message}')\" class=\"copy-button\">复制到剪贴板</button>\n          </div>\n        `;\n\n        resultDiv.scrollIntoView({ behavior: \"smooth\" });\n      }\n\n      function copyToClipboard(text) {\n        navigator.clipboard\n          .writeText(text)\n          .then(() => {\n            alert(\"已复制到剪贴板！\");\n          })\n          .catch((err) => {\n            alert(\"复制失败，请手动复制。\");\n            console.error(\"复制失败:\", err);\n          });\n      }\n\n      window.onload = function () {\n        updateDate();\n        initializePositionGrid();\n        toggleTempTimeGroup();\n      };\n    </script>\n  </body>\n</html>\n","date":"2025-04-22T05:22:00.798Z","updated":"2025-04-22T05:22:00.798Z","path":"qjsc/index.html","title":"","comments":true,"_id":"cmf6ooazt000azsno8twn8m49","content":"\n<!DOCTYPE html>\n<html lang=\"zh\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta\n      name=\"viewport\"\n      content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\"\n    />\n    <title>公寓岗小助手</title>\n    <style>\n      * {\n        box-sizing: border-box;\n        -webkit-tap-highlight-color: transparent;\n      }\n\n      body {\n        font-family: system-ui, -apple-system, sans-serif;\n        margin: 0;\n        padding: 16px;\n        background-color: #f5f5f5;\n        font-size: 16px;\n      }\n\n      .container {\n        max-width: 600px;\n        margin: 0 auto;\n        background-color: #ffffff;\n        border-radius: 12px;\n        padding: 20px;\n        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);\n      }\n\n      /* 新增常用链接样式 */\n      .quick-links {\n        display: flex;\n        gap: 12px;\n        margin-bottom: 24px;\n      }\n\n      .quick-link-btn {\n        flex: 1;\n        padding: 14px;\n        border: none;\n        border-radius: 8px;\n        font-size: 1rem;\n        font-weight: 600;\n        color: white;\n        background-color: #2196f3;\n        cursor: pointer;\n        transition: all 0.2s;\n      }\n\n      .quick-link-btn:active {\n        background-color: #1976d2;\n      }\n\n      h2 {\n        text-align: center;\n        margin: 0 0 24px 0;\n        color: #333;\n        font-size: 1.5rem;\n      }\n\n      .form-group {\n        margin-bottom: 20px;\n      }\n\n      .time-group {\n        display: flex;\n        gap: 12px;\n        align-items: center;\n      }\n\n      .time-group span {\n        color: #666;\n        font-weight: 600;\n      }\n\n      .time-input {\n        flex: 1;\n        padding: 12px;\n        border: 2px solid #ddd;\n        border-radius: 8px;\n        font-size: 1rem;\n        background-color: #fff;\n      }\n\n      .time-input:focus {\n        outline: none;\n        border-color: #2196f3;\n      }\n\n      label {\n        display: block;\n        margin-bottom: 8px;\n        font-weight: 600;\n        color: #444;\n        font-size: 1rem;\n      }\n\n      select,\n      input {\n        width: 100%;\n        padding: 12px;\n        border: 2px solid #ddd;\n        border-radius: 8px;\n        font-size: 1rem;\n        appearance: none;\n        -webkit-appearance: none;\n        background-color: #fff;\n      }\n\n      select {\n        background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\");\n        background-repeat: no-repeat;\n        background-position: right 12px center;\n        background-size: 16px;\n        padding-right: 40px;\n      }\n\n      input:focus,\n      select:focus {\n        outline: none;\n        border-color: #2196f3;\n      }\n\n      #date {\n        background-color: #f8f8f8;\n        color: #666;\n      }\n\n      .button-group {\n        display: flex;\n        flex-direction: column;\n        gap: 12px;\n        margin-top: 24px;\n      }\n\n      button {\n        width: 100%;\n        padding: 16px;\n        border: none;\n        border-radius: 8px;\n        font-size: 1rem;\n        font-weight: 600;\n        color: white;\n        cursor: pointer;\n        transition: all 0.2s;\n        -webkit-tap-highlight-color: transparent;\n      }\n\n      .generate-btn {\n        background-color: #2196f3;\n      }\n\n      .generate-btn:active {\n        background-color: #1976d2;\n      }\n\n      .copy-button {\n        background-color: #4caf50;\n      }\n\n      .copy-button:active {\n        background-color: #45a049;\n      }\n\n      .position-grid {\n        display: grid;\n        grid-template-columns: repeat(6, 1fr);\n        gap: 8px;\n        margin-top: 8px;\n      }\n\n      .position-btn {\n        padding: 12px 4px;\n        background-color: #f0f0f0;\n        color: #333;\n        font-size: 0.9rem;\n        font-weight: normal;\n      }\n\n      .position-btn.selected {\n        background-color: #2196f3;\n        color: white;\n      }\n\n      .result {\n        margin-top: 24px;\n        padding: 16px;\n        background-color: #f8f8f8;\n        border-radius: 8px;\n        word-break: break-all;\n      }\n\n      .result p {\n        margin: 8px 0;\n        line-height: 1.5;\n      }\n\n      .result p:last-child {\n        font-size: 1.1rem;\n        font-weight: 600;\n        color: #333;\n      }\n\n      .fixed-bottom {\n        position: fixed;\n        bottom: 0;\n        left: 0;\n        right: 0;\n        padding: 12px 16px;\n        background-color: #fff;\n        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);\n      }\n\n      .bottom-spacing {\n        height: 80px;\n      }\n\n      .selected-position {\n        margin-top: 12px;\n        padding: 8px;\n        background-color: #e3f2fd;\n        border-radius: 4px;\n        text-align: center;\n        font-weight: bold;\n        color: #1976d2;\n      }\n\n      #tempTimeGroup {\n        display: none;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"container\">\n      <h2>主管常用表格</h2>\n\n      <!-- 新增常用链接栏目 -->\n      <div class=\"quick-links\">\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DVUhRTGJKS3hTdkFx'\"\n        >\n          排班表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DS2poZEhocEFEb1pS?tab=zwbgiy'\"\n        >\n          空岗表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DVVpLd0ZTRnhLa1Fz'\"\n        >\n          裸辞表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DS0pWdlRvRkl0bG5Q'\"\n        >\n          黑名单\n        </button>\n      </div>\n      <h2>请假信息生成器</h2>\n      <div class=\"form-group\">\n        <label>日期标记</label>\n        <select id=\"datePrefix\" onchange=\"updateDate()\">\n          <option value=\"今天\">今天</option>\n          <option value=\"明天\">明天</option>\n          <option value=\"后天\">后天</option>\n          <option value=\"本周一\">周一</option>\n          <option value=\"本周二\">周二</option>\n          <option value=\"本周三\">周三</option>\n          <option value=\"本周四\">周四</option>\n          <option value=\"本周五\">周五</option>\n          <option value=\"本周六\">周六</option>\n          <option value=\"本周日\">周日</option>\n        </select>\n      </div>\n      <div class=\"form-group\">\n        <label>具体日期</label>\n        <input type=\"text\" id=\"date\" readonly />\n      </div>\n      <div class=\"form-group\">\n        <label>班次</label>\n        <select id=\"shift\">\n          <option value=\"早班\">早班</option>\n          <option value=\"午班\">午班</option>\n          <option value=\"晚班\">晚班</option>\n        </select>\n      </div>\n      <div class=\"form-group\">\n        <label>楼栋号</label>\n        <div id=\"position-grid\" class=\"position-grid\"></div>\n        <div id=\"selected-position\" class=\"selected-position\">请选择楼栋号</div>\n      </div>\n      <div class=\"form-group\">\n        <label>姓名</label>\n        <input type=\"text\" id=\"name\" placeholder=\"请输入姓名\" />\n      </div>\n      <div class=\"form-group\">\n        <label>请假类型</label>\n        <select id=\"leaveType\" onchange=\"toggleTempTimeGroup()\">\n          <option value=\"请假\">请假</option>\n          <option value=\"请假不当\">请假不当</option>\n          <option value=\"接班\">接班</option>\n          <option value=\"临时请假\">临时请假</option>\n        </select>\n      </div>\n      <div id=\"tempTimeGroup\" class=\"form-group\">\n        <label>临时请假时间</label>\n        <div class=\"time-group\">\n          <input type=\"time\" id=\"startTime\" class=\"time-input\" />\n          <span>至</span>\n          <input type=\"time\" id=\"endTime\" class=\"time-input\" />\n        </div>\n      </div>\n      <div id=\"result\"></div>\n      <div class=\"bottom-spacing\"></div>\n    </div>\n\n    <div class=\"fixed-bottom\">\n      <div class=\"button-group\">\n        <button class=\"generate-btn\" onclick=\"generateMessage()\">\n          生成请假信息\n        </button>\n      </div>\n    </div>\n\n    <script>\n      let selectedPosition = \"\";\n\n      function initializePositionGrid() {\n        const grid = document.getElementById(\"position-grid\");\n        for (let i = 1; i <= 27; i++) {\n          if (i === 5) {\n            const buttonA = document.createElement(\"button\");\n            const buttonB = document.createElement(\"button\");\n            buttonA.textContent = \"5A#\";\n            buttonB.textContent = \"5B#\";\n            buttonA.className = \"position-btn\";\n            buttonB.className = \"position-btn\";\n            buttonA.onclick = () => selectPosition(\"5A#\");\n            buttonB.onclick = () => selectPosition(\"5B#\");\n            grid.appendChild(buttonA);\n            grid.appendChild(buttonB);\n          } else {\n            const button = document.createElement(\"button\");\n            button.textContent = `${i}#`;\n            button.className = \"position-btn\";\n            button.onclick = () => selectPosition(`${i}#`);\n            grid.appendChild(button);\n          }\n        }\n      }\n\n      function toggleTempTimeGroup() {\n        const leaveType = document.getElementById(\"leaveType\").value;\n        const tempTimeGroup = document.getElementById(\"tempTimeGroup\");\n        tempTimeGroup.style.display =\n          leaveType === \"临时请假\" ? \"block\" : \"none\";\n      }\n\n      function selectPosition(position) {\n        selectedPosition = position;\n        document.querySelectorAll(\".position-btn\").forEach((btn) => {\n          btn.classList.remove(\"selected\");\n          if (btn.textContent === position) {\n            btn.classList.add(\"selected\");\n          }\n        });\n        document.getElementById(\n          \"selected-position\"\n        ).textContent = `已选择: ${position}`;\n      }\n\n      function getDateOfWeek(dayName) {\n        const days = {\n          本周一: 1,\n          本周二: 2,\n          本周三: 3,\n          本周四: 4,\n          本周五: 5,\n          本周六: 6,\n          本周日: 0,\n        };\n\n        const today = new Date();\n        const currentDay = today.getDay();\n        const targetDay = days[dayName];\n\n        let diff = targetDay - currentDay;\n        if (targetDay === 0) diff = 7 - currentDay;\n        if (diff <= 0) diff += 7;\n\n        const targetDate = new Date(today);\n        targetDate.setDate(today.getDate() + diff);\n\n        return `${targetDate.getMonth() + 1}.${targetDate.getDate()}`;\n      }\n\n      function getDateByOffset(offset) {\n        const date = new Date();\n        date.setDate(date.getDate() + offset);\n        return `${date.getMonth() + 1}.${date.getDate()}`;\n      }\n\n      function updateDate() {\n        const datePrefix = document.getElementById(\"datePrefix\").value;\n        let dateStr;\n\n        if (datePrefix.startsWith(\"本周\")) {\n          dateStr = getDateOfWeek(datePrefix);\n        } else {\n          const offset =\n            datePrefix === \"明天\" ? 1 : datePrefix === \"后天\" ? 2 : 0;\n          dateStr = getDateByOffset(offset);\n        }\n\n        document.getElementById(\"date\").value = dateStr;\n      }\n\n      function calculateTimeDifference(start, end) {\n        const [startHours, startMinutes] = start.split(\":\").map(Number);\n        const [endHours, endMinutes] = end.split(\":\").map(Number);\n\n        let diffMinutes =\n          endHours * 60 + endMinutes - (startHours * 60 + startMinutes);\n\n        // 如果结束时间小于开始时间，假设跨天，加24小时\n        if (diffMinutes < 0) {\n          diffMinutes += 24 * 60;\n        }\n\n        return diffMinutes;\n      }\n\n      function generateMessage() {\n        const datePrefix = document.getElementById(\"datePrefix\").value;\n        const date = document.getElementById(\"date\").value;\n        const shift = document.getElementById(\"shift\").value;\n        const name = document.getElementById(\"name\").value;\n        const leaveType = document.getElementById(\"leaveType\").value;\n\n        if (!selectedPosition || !name) {\n          alert(\"请填写完整信息！\");\n          return;\n        }\n\n        let message = `请假：${datePrefix}（${date}）${shift} ${selectedPosition} ${name} ${leaveType}`;\n\n        if (leaveType === \"临时请假\") {\n          const startTime = document.getElementById(\"startTime\").value;\n          const endTime = document.getElementById(\"endTime\").value;\n          if (!startTime || !endTime) {\n            alert(\"请填写临时请假时间！\");\n            return;\n          }\n          const diffMinutes = calculateTimeDifference(startTime, endTime);\n          message += ` ${diffMinutes}mins (${startTime}-${endTime})`;\n        }\n\n        const resultDiv = document.getElementById(\"result\");\n        resultDiv.innerHTML = `\n          <div class=\"result\">\n            <p>生成的信息：</p>\n            <p>${message}</p>\n          </div>\n          <div class=\"button-group\">\n            <button onclick=\"copyToClipboard('${message}')\" class=\"copy-button\">复制到剪贴板</button>\n          </div>\n        `;\n\n        resultDiv.scrollIntoView({ behavior: \"smooth\" });\n      }\n\n      function copyToClipboard(text) {\n        navigator.clipboard\n          .writeText(text)\n          .then(() => {\n            alert(\"已复制到剪贴板！\");\n          })\n          .catch((err) => {\n            alert(\"复制失败，请手动复制。\");\n            console.error(\"复制失败:\", err);\n          });\n      }\n\n      window.onload = function () {\n        updateDate();\n        initializePositionGrid();\n        toggleTempTimeGroup();\n      };\n    </script>\n  </body>\n</html>\n","excerpt":"","more":"\n<!DOCTYPE html>\n<html lang=\"zh\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta\n      name=\"viewport\"\n      content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\"\n    />\n    <title>公寓岗小助手</title>\n    <style>\n      * {\n        box-sizing: border-box;\n        -webkit-tap-highlight-color: transparent;\n      }\n\n      body {\n        font-family: system-ui, -apple-system, sans-serif;\n        margin: 0;\n        padding: 16px;\n        background-color: #f5f5f5;\n        font-size: 16px;\n      }\n\n      .container {\n        max-width: 600px;\n        margin: 0 auto;\n        background-color: #ffffff;\n        border-radius: 12px;\n        padding: 20px;\n        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);\n      }\n\n      /* 新增常用链接样式 */\n      .quick-links {\n        display: flex;\n        gap: 12px;\n        margin-bottom: 24px;\n      }\n\n      .quick-link-btn {\n        flex: 1;\n        padding: 14px;\n        border: none;\n        border-radius: 8px;\n        font-size: 1rem;\n        font-weight: 600;\n        color: white;\n        background-color: #2196f3;\n        cursor: pointer;\n        transition: all 0.2s;\n      }\n\n      .quick-link-btn:active {\n        background-color: #1976d2;\n      }\n\n      h2 {\n        text-align: center;\n        margin: 0 0 24px 0;\n        color: #333;\n        font-size: 1.5rem;\n      }\n\n      .form-group {\n        margin-bottom: 20px;\n      }\n\n      .time-group {\n        display: flex;\n        gap: 12px;\n        align-items: center;\n      }\n\n      .time-group span {\n        color: #666;\n        font-weight: 600;\n      }\n\n      .time-input {\n        flex: 1;\n        padding: 12px;\n        border: 2px solid #ddd;\n        border-radius: 8px;\n        font-size: 1rem;\n        background-color: #fff;\n      }\n\n      .time-input:focus {\n        outline: none;\n        border-color: #2196f3;\n      }\n\n      label {\n        display: block;\n        margin-bottom: 8px;\n        font-weight: 600;\n        color: #444;\n        font-size: 1rem;\n      }\n\n      select,\n      input {\n        width: 100%;\n        padding: 12px;\n        border: 2px solid #ddd;\n        border-radius: 8px;\n        font-size: 1rem;\n        appearance: none;\n        -webkit-appearance: none;\n        background-color: #fff;\n      }\n\n      select {\n        background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\");\n        background-repeat: no-repeat;\n        background-position: right 12px center;\n        background-size: 16px;\n        padding-right: 40px;\n      }\n\n      input:focus,\n      select:focus {\n        outline: none;\n        border-color: #2196f3;\n      }\n\n      #date {\n        background-color: #f8f8f8;\n        color: #666;\n      }\n\n      .button-group {\n        display: flex;\n        flex-direction: column;\n        gap: 12px;\n        margin-top: 24px;\n      }\n\n      button {\n        width: 100%;\n        padding: 16px;\n        border: none;\n        border-radius: 8px;\n        font-size: 1rem;\n        font-weight: 600;\n        color: white;\n        cursor: pointer;\n        transition: all 0.2s;\n        -webkit-tap-highlight-color: transparent;\n      }\n\n      .generate-btn {\n        background-color: #2196f3;\n      }\n\n      .generate-btn:active {\n        background-color: #1976d2;\n      }\n\n      .copy-button {\n        background-color: #4caf50;\n      }\n\n      .copy-button:active {\n        background-color: #45a049;\n      }\n\n      .position-grid {\n        display: grid;\n        grid-template-columns: repeat(6, 1fr);\n        gap: 8px;\n        margin-top: 8px;\n      }\n\n      .position-btn {\n        padding: 12px 4px;\n        background-color: #f0f0f0;\n        color: #333;\n        font-size: 0.9rem;\n        font-weight: normal;\n      }\n\n      .position-btn.selected {\n        background-color: #2196f3;\n        color: white;\n      }\n\n      .result {\n        margin-top: 24px;\n        padding: 16px;\n        background-color: #f8f8f8;\n        border-radius: 8px;\n        word-break: break-all;\n      }\n\n      .result p {\n        margin: 8px 0;\n        line-height: 1.5;\n      }\n\n      .result p:last-child {\n        font-size: 1.1rem;\n        font-weight: 600;\n        color: #333;\n      }\n\n      .fixed-bottom {\n        position: fixed;\n        bottom: 0;\n        left: 0;\n        right: 0;\n        padding: 12px 16px;\n        background-color: #fff;\n        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);\n      }\n\n      .bottom-spacing {\n        height: 80px;\n      }\n\n      .selected-position {\n        margin-top: 12px;\n        padding: 8px;\n        background-color: #e3f2fd;\n        border-radius: 4px;\n        text-align: center;\n        font-weight: bold;\n        color: #1976d2;\n      }\n\n      #tempTimeGroup {\n        display: none;\n      }\n    </style>\n  </head>\n  <body>\n    <div class=\"container\">\n      <h2>主管常用表格</h2>\n\n      <!-- 新增常用链接栏目 -->\n      <div class=\"quick-links\">\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DVUhRTGJKS3hTdkFx'\"\n        >\n          排班表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DS2poZEhocEFEb1pS?tab=zwbgiy'\"\n        >\n          空岗表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DVVpLd0ZTRnhLa1Fz'\"\n        >\n          裸辞表\n        </button>\n        <button\n          class=\"quick-link-btn\"\n          onclick=\"window.location.href='https://docs.qq.com/sheet/DS0pWdlRvRkl0bG5Q'\"\n        >\n          黑名单\n        </button>\n      </div>\n      <h2>请假信息生成器</h2>\n      <div class=\"form-group\">\n        <label>日期标记</label>\n        <select id=\"datePrefix\" onchange=\"updateDate()\">\n          <option value=\"今天\">今天</option>\n          <option value=\"明天\">明天</option>\n          <option value=\"后天\">后天</option>\n          <option value=\"本周一\">周一</option>\n          <option value=\"本周二\">周二</option>\n          <option value=\"本周三\">周三</option>\n          <option value=\"本周四\">周四</option>\n          <option value=\"本周五\">周五</option>\n          <option value=\"本周六\">周六</option>\n          <option value=\"本周日\">周日</option>\n        </select>\n      </div>\n      <div class=\"form-group\">\n        <label>具体日期</label>\n        <input type=\"text\" id=\"date\" readonly />\n      </div>\n      <div class=\"form-group\">\n        <label>班次</label>\n        <select id=\"shift\">\n          <option value=\"早班\">早班</option>\n          <option value=\"午班\">午班</option>\n          <option value=\"晚班\">晚班</option>\n        </select>\n      </div>\n      <div class=\"form-group\">\n        <label>楼栋号</label>\n        <div id=\"position-grid\" class=\"position-grid\"></div>\n        <div id=\"selected-position\" class=\"selected-position\">请选择楼栋号</div>\n      </div>\n      <div class=\"form-group\">\n        <label>姓名</label>\n        <input type=\"text\" id=\"name\" placeholder=\"请输入姓名\" />\n      </div>\n      <div class=\"form-group\">\n        <label>请假类型</label>\n        <select id=\"leaveType\" onchange=\"toggleTempTimeGroup()\">\n          <option value=\"请假\">请假</option>\n          <option value=\"请假不当\">请假不当</option>\n          <option value=\"接班\">接班</option>\n          <option value=\"临时请假\">临时请假</option>\n        </select>\n      </div>\n      <div id=\"tempTimeGroup\" class=\"form-group\">\n        <label>临时请假时间</label>\n        <div class=\"time-group\">\n          <input type=\"time\" id=\"startTime\" class=\"time-input\" />\n          <span>至</span>\n          <input type=\"time\" id=\"endTime\" class=\"time-input\" />\n        </div>\n      </div>\n      <div id=\"result\"></div>\n      <div class=\"bottom-spacing\"></div>\n    </div>\n\n    <div class=\"fixed-bottom\">\n      <div class=\"button-group\">\n        <button class=\"generate-btn\" onclick=\"generateMessage()\">\n          生成请假信息\n        </button>\n      </div>\n    </div>\n\n    <script>\n      let selectedPosition = \"\";\n\n      function initializePositionGrid() {\n        const grid = document.getElementById(\"position-grid\");\n        for (let i = 1; i <= 27; i++) {\n          if (i === 5) {\n            const buttonA = document.createElement(\"button\");\n            const buttonB = document.createElement(\"button\");\n            buttonA.textContent = \"5A#\";\n            buttonB.textContent = \"5B#\";\n            buttonA.className = \"position-btn\";\n            buttonB.className = \"position-btn\";\n            buttonA.onclick = () => selectPosition(\"5A#\");\n            buttonB.onclick = () => selectPosition(\"5B#\");\n            grid.appendChild(buttonA);\n            grid.appendChild(buttonB);\n          } else {\n            const button = document.createElement(\"button\");\n            button.textContent = `${i}#`;\n            button.className = \"position-btn\";\n            button.onclick = () => selectPosition(`${i}#`);\n            grid.appendChild(button);\n          }\n        }\n      }\n\n      function toggleTempTimeGroup() {\n        const leaveType = document.getElementById(\"leaveType\").value;\n        const tempTimeGroup = document.getElementById(\"tempTimeGroup\");\n        tempTimeGroup.style.display =\n          leaveType === \"临时请假\" ? \"block\" : \"none\";\n      }\n\n      function selectPosition(position) {\n        selectedPosition = position;\n        document.querySelectorAll(\".position-btn\").forEach((btn) => {\n          btn.classList.remove(\"selected\");\n          if (btn.textContent === position) {\n            btn.classList.add(\"selected\");\n          }\n        });\n        document.getElementById(\n          \"selected-position\"\n        ).textContent = `已选择: ${position}`;\n      }\n\n      function getDateOfWeek(dayName) {\n        const days = {\n          本周一: 1,\n          本周二: 2,\n          本周三: 3,\n          本周四: 4,\n          本周五: 5,\n          本周六: 6,\n          本周日: 0,\n        };\n\n        const today = new Date();\n        const currentDay = today.getDay();\n        const targetDay = days[dayName];\n\n        let diff = targetDay - currentDay;\n        if (targetDay === 0) diff = 7 - currentDay;\n        if (diff <= 0) diff += 7;\n\n        const targetDate = new Date(today);\n        targetDate.setDate(today.getDate() + diff);\n\n        return `${targetDate.getMonth() + 1}.${targetDate.getDate()}`;\n      }\n\n      function getDateByOffset(offset) {\n        const date = new Date();\n        date.setDate(date.getDate() + offset);\n        return `${date.getMonth() + 1}.${date.getDate()}`;\n      }\n\n      function updateDate() {\n        const datePrefix = document.getElementById(\"datePrefix\").value;\n        let dateStr;\n\n        if (datePrefix.startsWith(\"本周\")) {\n          dateStr = getDateOfWeek(datePrefix);\n        } else {\n          const offset =\n            datePrefix === \"明天\" ? 1 : datePrefix === \"后天\" ? 2 : 0;\n          dateStr = getDateByOffset(offset);\n        }\n\n        document.getElementById(\"date\").value = dateStr;\n      }\n\n      function calculateTimeDifference(start, end) {\n        const [startHours, startMinutes] = start.split(\":\").map(Number);\n        const [endHours, endMinutes] = end.split(\":\").map(Number);\n\n        let diffMinutes =\n          endHours * 60 + endMinutes - (startHours * 60 + startMinutes);\n\n        // 如果结束时间小于开始时间，假设跨天，加24小时\n        if (diffMinutes < 0) {\n          diffMinutes += 24 * 60;\n        }\n\n        return diffMinutes;\n      }\n\n      function generateMessage() {\n        const datePrefix = document.getElementById(\"datePrefix\").value;\n        const date = document.getElementById(\"date\").value;\n        const shift = document.getElementById(\"shift\").value;\n        const name = document.getElementById(\"name\").value;\n        const leaveType = document.getElementById(\"leaveType\").value;\n\n        if (!selectedPosition || !name) {\n          alert(\"请填写完整信息！\");\n          return;\n        }\n\n        let message = `请假：${datePrefix}（${date}）${shift} ${selectedPosition} ${name} ${leaveType}`;\n\n        if (leaveType === \"临时请假\") {\n          const startTime = document.getElementById(\"startTime\").value;\n          const endTime = document.getElementById(\"endTime\").value;\n          if (!startTime || !endTime) {\n            alert(\"请填写临时请假时间！\");\n            return;\n          }\n          const diffMinutes = calculateTimeDifference(startTime, endTime);\n          message += ` ${diffMinutes}mins (${startTime}-${endTime})`;\n        }\n\n        const resultDiv = document.getElementById(\"result\");\n        resultDiv.innerHTML = `\n          <div class=\"result\">\n            <p>生成的信息：</p>\n            <p>${message}</p>\n          </div>\n          <div class=\"button-group\">\n            <button onclick=\"copyToClipboard('${message}')\" class=\"copy-button\">复制到剪贴板</button>\n          </div>\n        `;\n\n        resultDiv.scrollIntoView({ behavior: \"smooth\" });\n      }\n\n      function copyToClipboard(text) {\n        navigator.clipboard\n          .writeText(text)\n          .then(() => {\n            alert(\"已复制到剪贴板！\");\n          })\n          .catch((err) => {\n            alert(\"复制失败，请手动复制。\");\n            console.error(\"复制失败:\", err);\n          });\n      }\n\n      window.onload = function () {\n        updateDate();\n        initializePositionGrid();\n        toggleTempTimeGroup();\n      };\n    </script>\n  </body>\n</html>\n","permalink":"https://www.holiofox.space/qjsc/","full_source":"C:\\blog\\source\\qjsc\\index.html"}
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.33.1" theme-name="Stellar" theme-version="1.33.1">
+  
+  
+  <meta name="generator" content="Hexo 7.3.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  <meta name="theme-color" content="#f9fafb">
+  <title>HolioFox Blog</title>
+
+  
+    <meta name="description" content="公寓岗小助手            * {         box-sizing: border-box;         -webkit-tap-highlight-color: transparent;       }        body {         font-family: system-ui, -apple-system, sans-se">
+<meta property="og:type" content="website">
+<meta property="og:title" content="HolioFox Blog">
+<meta property="og:url" content="https://www.holiofox.space/qjsc/">
+<meta property="og:site_name" content="HolioFox Blog">
+<meta property="og:description" content="公寓岗小助手            * {         box-sizing: border-box;         -webkit-tap-highlight-color: transparent;       }        body {         font-family: system-ui, -apple-system, sans-se">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-06T05:37:08.938Z">
+<meta property="article:modified_time" content="2025-09-06T05:37:08.938Z">
+<meta property="article:author" content="HolioFox">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  <link rel="stylesheet" href="/css/main.css?v=1.33.1">
+
+
+  
+
+  
+    
+<link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/highlightjs/cdn-release@11.9/build/styles/atom-one-dark.min.css">
+
+  
+
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Website","@id":"https://www.holiofox.space/qjsc/","author":{"@type":"Person","name":"HolioFox","sameAs":[]},"name":"HolioFox Blog","description":"\n\n\n  \n    \n    \n    公寓岗小助手\n    \n      * {\n        box-sizing: border-box;\n        -webkit-tap-highlight-color: transparent;\n      }\n\n      body {\n        font-family: system-ui, -apple-system, sans...","url":"https://www.holiofox.space/qjsc/"}</script>
+  
+</head>
+<body>
+
+<div class="l_body content" id="start" layout="page" type="tech" ><aside class="l_left"><div class="sidebg"></div><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="https://ooo.0x0.ooo/2023/10/10/O1GNlN.jpg" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main">HolioFox Blog</div><div class="sub normal cap">我喜欢，每天收一粒稻谷</div><div class="sub hover cap" style="opacity:0"> 在万字中走一的道路</div></a></div></header>
+
+<div class="nav-area">
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+<widget class="widget-wrapper recent post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2023/10/10/poems/"><span class="title">Some poems</span></a><a class="item title" href="/2024/09/25/%E5%A6%82%E4%BD%95%E7%94%A8ESP32%E5%AE%9E%E7%8E%B0%E7%AE%80%E7%9F%AD%E7%9A%84AI%E5%AF%B9%E8%AF%9D/"><span class="title">如何用ESP32实现简短的AI对话</span></a><a class="item title" href="/2023/10/09/Hello-fufu/"><span class="title">Hello,fufu</span></a><a class="item title" href="/2024/03/12/%E7%94%A8python%E5%AE%9E%E7%8E%B0%E7%9A%84exr%E6%96%87%E4%BB%B6%E9%80%9A%E9%81%93%E6%A3%80%E6%B5%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%9F%E8%AE%A1/"><span class="title">用python实现的exr文件通道检测与数据统计</span></a><a class="item title" href="/2024/06/23/%E6%95%B0%E5%AD%97%E7%94%B5%E8%B7%AF%E5%AE%9E%E9%AA%8C%E2%80%94%E2%80%94%E2%80%94%E2%80%94%E6%95%B0%E5%AD%97%E9%92%9F/"><span class="title">数字电路实验——数字钟设计</span></a><a class="item title" href="/2023/12/06/md%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95/"><span class="title">md常用语法</span></a><a class="item title" href="/2024/02/12/LaTex%E9%A3%9F%E7%94%A8%E6%8C%87%E5%8D%97/"><span class="title">LaTex食用指南</span></a><a class="item title" href="/2024/08/22/%E5%A6%82%E4%BD%95%E5%9C%A8%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2Echarts/"><span class="title">如何在本地部署Echarts</span></a><a class="item title" href="/2023/12/06/%E5%9F%BA%E4%BA%8EopenCV%E7%9A%84%E5%9B%BE%E7%89%87%E6%9F%A5%E7%9C%8B%E5%99%A8/"><span class="title">基于openCV的图片查看器</span></a><a class="item title" href="/2023/12/06/%E5%9F%BA%E4%BA%8EopenCV%E7%9A%84%E8%A7%86%E9%A2%91%E6%9F%A5%E7%9C%8B%E5%99%A8/"><span class="title">基于openCV的视频查看器</span></a></div></widget>
+</div>
+
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+
+  <span class="sep"></span>
+  <a class="cap breadcrumb" href="/qjsc/"></a>
+  </div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2025-09-06T05:37:08.938Z">2025-09-06</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2025-09-06T05:37:08.938Z">2025-09-06</time></span></div></div></div>
+    
+  </div>
+  </div><article class="md-text content">
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>公寓岗小助手</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 16px;
+        background-color: #f5f5f5;
+        font-size: 16px;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      /* 新增常用链接样式 */
+      .quick-links {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      .quick-link-btn {
+        flex: 1;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        background-color: #2196f3;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .quick-link-btn:active {
+        background-color: #1976d2;
+      }
+
+      h2 {
+        text-align: center;
+        margin: 0 0 24px 0;
+        color: #333;
+        font-size: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .time-group {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .time-group span {
+        color: #666;
+        font-weight: 600;
+      }
+
+      .time-input {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        background-color: #fff;
+      }
+
+      .time-input:focus {
+        outline: none;
+        border-color: #2196f3;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #444;
+        font-size: 1rem;
+      }
+
+      select,
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        appearance: none;
+        -webkit-appearance: none;
+        background-color: #fff;
+      }
+
+      select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        padding-right: 40px;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: #2196f3;
+      }
+
+      #date {
+        background-color: #f8f8f8;
+        color: #666;
+      }
+
+      .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      button {
+        width: 100%;
+        padding: 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .generate-btn {
+        background-color: #2196f3;
+      }
+
+      .generate-btn:active {
+        background-color: #1976d2;
+      }
+
+      .copy-button {
+        background-color: #4caf50;
+      }
+
+      .copy-button:active {
+        background-color: #45a049;
+      }
+
+      .position-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .position-btn {
+        padding: 12px 4px;
+        background-color: #f0f0f0;
+        color: #333;
+        font-size: 0.9rem;
+        font-weight: normal;
+      }
+
+      .position-btn.selected {
+        background-color: #2196f3;
+        color: white;
+      }
+
+      .result {
+        margin-top: 24px;
+        padding: 16px;
+        background-color: #f8f8f8;
+        border-radius: 8px;
+        word-break: break-all;
+      }
+
+      .result p {
+        margin: 8px 0;
+        line-height: 1.5;
+      }
+
+      .result p:last-child {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .fixed-bottom {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 12px 16px;
+        background-color: #fff;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .bottom-spacing {
+        height: 80px;
+      }
+
+      .selected-position {
+        margin-top: 12px;
+        padding: 8px;
+        background-color: #e3f2fd;
+        border-radius: 4px;
+        text-align: center;
+        font-weight: bold;
+        color: #1976d2;
+      }
+
+      #tempTimeGroup {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>主管常用表格</h2>
+
+      <!-- 新增常用链接栏目 -->
+      <div class="quick-links">
+        <button
+          class="quick-link-btn"
+          onclick="window.location.href='https://docs.qq.com/sheet/DVUhRTGJKS3hTdkFx'"
+        >
+          排班表
+        </button>
+        <button
+          class="quick-link-btn"
+          onclick="window.location.href='https://docs.qq.com/sheet/DS2poZEhocEFEb1pS?tab=zwbgiy'"
+        >
+          空岗表
+        </button>
+        <button
+          class="quick-link-btn"
+          onclick="window.location.href='https://docs.qq.com/sheet/DVVpLd0ZTRnhLa1Fz'"
+        >
+          裸辞表
+        </button>
+        <button
+          class="quick-link-btn"
+          onclick="window.location.href='https://docs.qq.com/sheet/DS0pWdlRvRkl0bG5Q'"
+        >
+          黑名单
+        </button>
+      </div>
+      <h2>请假信息生成器</h2>
+      <div class="form-group">
+        <label>日期标记</label>
+        <select id="datePrefix" onchange="updateDate()">
+          <option value="今天">今天</option>
+          <option value="明天">明天</option>
+          <option value="后天">后天</option>
+          <option value="本周一">周一</option>
+          <option value="本周二">周二</option>
+          <option value="本周三">周三</option>
+          <option value="本周四">周四</option>
+          <option value="本周五">周五</option>
+          <option value="本周六">周六</option>
+          <option value="本周日">周日</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>具体日期</label>
+        <input type="text" id="date" readonly />
+      </div>
+      <div class="form-group">
+        <label>班次</label>
+        <select id="shift">
+          <option value="早班">早班</option>
+          <option value="午班">午班</option>
+          <option value="晚班">晚班</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>楼栋号</label>
+        <div id="position-grid" class="position-grid"></div>
+        <div id="selected-position" class="selected-position">请选择楼栋号</div>
+      </div>
+      <div class="form-group">
+        <label>姓名</label>
+        <input type="text" id="name" placeholder="请输入姓名" />
+      </div>
+      <div class="form-group">
+        <label>请假类型</label>
+        <select id="leaveType" onchange="toggleTempTimeGroup()">
+          <option value="请假">请假</option>
+          <option value="请假不当">请假不当</option>
+          <option value="接班">接班</option>
+          <option value="临时请假">临时请假</option>
+        </select>
+      </div>
+      <div id="tempTimeGroup" class="form-group">
+        <label>临时请假时间</label>
+        <div class="time-group">
+          <input type="time" id="startTime" class="time-input" />
+          <span>至</span>
+          <input type="time" id="endTime" class="time-input" />
+        </div>
+      </div>
+      <div id="result"></div>
+      <div class="bottom-spacing"></div>
+    </div>
+
+    <div class="fixed-bottom">
+      <div class="button-group">
+        <button class="generate-btn" onclick="generateMessage()">
+          生成请假信息
+        </button>
+      </div>
+    </div>
+
+    <script>
+      let selectedPosition = "";
+
+      function initializePositionGrid() {
+        const grid = document.getElementById("position-grid");
+        for (let i = 1; i <= 27; i++) {
+          if (i === 5) {
+            const buttonA = document.createElement("button");
+            const buttonB = document.createElement("button");
+            buttonA.textContent = "5A#";
+            buttonB.textContent = "5B#";
+            buttonA.className = "position-btn";
+            buttonB.className = "position-btn";
+            buttonA.onclick = () => selectPosition("5A#");
+            buttonB.onclick = () => selectPosition("5B#");
+            grid.appendChild(buttonA);
+            grid.appendChild(buttonB);
+          } else {
+            const button = document.createElement("button");
+            button.textContent = `${i}#`;
+            button.className = "position-btn";
+            button.onclick = () => selectPosition(`${i}#`);
+            grid.appendChild(button);
+          }
+        }
+      }
+
+      function toggleTempTimeGroup() {
+        const leaveType = document.getElementById("leaveType").value;
+        const tempTimeGroup = document.getElementById("tempTimeGroup");
+        tempTimeGroup.style.display =
+          leaveType === "临时请假" ? "block" : "none";
+      }
+
+      function selectPosition(position) {
+        selectedPosition = position;
+        document.querySelectorAll(".position-btn").forEach((btn) => {
+          btn.classList.remove("selected");
+          if (btn.textContent === position) {
+            btn.classList.add("selected");
+          }
+        });
+        document.getElementById(
+          "selected-position"
+        ).textContent = `已选择: ${position}`;
+      }
+
+      function getDateOfWeek(dayName) {
+        const days = {
+          本周一: 1,
+          本周二: 2,
+          本周三: 3,
+          本周四: 4,
+          本周五: 5,
+          本周六: 6,
+          本周日: 0,
+        };
+
+        const today = new Date();
+        const currentDay = today.getDay();
+        const targetDay = days[dayName];
+
+        let diff = targetDay - currentDay;
+        if (targetDay === 0) diff = 7 - currentDay;
+        if (diff <= 0) diff += 7;
+
+        const targetDate = new Date(today);
+        targetDate.setDate(today.getDate() + diff);
+
+        return `${targetDate.getMonth() + 1}.${targetDate.getDate()}`;
+      }
+
+      function getDateByOffset(offset) {
+        const date = new Date();
+        date.setDate(date.getDate() + offset);
+        return `${date.getMonth() + 1}.${date.getDate()}`;
+      }
+
+      function updateDate() {
+        const datePrefix = document.getElementById("datePrefix").value;
+        let dateStr;
+
+        if (datePrefix.startsWith("本周")) {
+          dateStr = getDateOfWeek(datePrefix);
+        } else {
+          const offset =
+            datePrefix === "明天" ? 1 : datePrefix === "后天" ? 2 : 0;
+          dateStr = getDateByOffset(offset);
+        }
+
+        document.getElementById("date").value = dateStr;
+      }
+
+      function calculateTimeDifference(start, end) {
+        const [startHours, startMinutes] = start.split(":").map(Number);
+        const [endHours, endMinutes] = end.split(":").map(Number);
+
+        let diffMinutes =
+          endHours * 60 + endMinutes - (startHours * 60 + startMinutes);
+
+        // 如果结束时间小于开始时间，假设跨天，加24小时
+        if (diffMinutes < 0) {
+          diffMinutes += 24 * 60;
+        }
+
+        return diffMinutes;
+      }
+
+      function generateMessage() {
+        const datePrefix = document.getElementById("datePrefix").value;
+        const date = document.getElementById("date").value;
+        const shift = document.getElementById("shift").value;
+        const name = document.getElementById("name").value;
+        const leaveType = document.getElementById("leaveType").value;
+
+        if (!selectedPosition || !name) {
+          alert("请填写完整信息！");
+          return;
+        }
+
+        let message = `请假：${datePrefix}（${date}）${shift} ${selectedPosition} ${name} ${leaveType}`;
+
+        if (leaveType === "临时请假") {
+          const startTime = document.getElementById("startTime").value;
+          const endTime = document.getElementById("endTime").value;
+          if (!startTime || !endTime) {
+            alert("请填写临时请假时间！");
+            return;
+          }
+          const diffMinutes = calculateTimeDifference(startTime, endTime);
+          message += ` ${diffMinutes}mins (${startTime}-${endTime})`;
+        }
+
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = `
+          <div class="result">
+            <p>生成的信息：</p>
+            <p>${message}</p>
+          </div>
+          <div class="button-group">
+            <button onclick="copyToClipboard('${message}')" class="copy-button">复制到剪贴板</button>
+          </div>
+        `;
+
+        resultDiv.scrollIntoView({ behavior: "smooth" });
+      }
+
+      function copyToClipboard(text) {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            alert("已复制到剪贴板！");
+          })
+          .catch((err) => {
+            alert("复制失败，请手动复制。");
+            console.error("复制失败:", err);
+          });
+      }
+
+      window.onload = function () {
+        updateDate();
+        initializePositionGrid();
+        toggleTempTimeGroup();
+      };
+    </script>
+  </body>
+</html>
+</article>
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">HolioFox</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.33.1">Stellar 1.33.1</a> 主题创建。<br>本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-text">主管常用表格</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-text">请假信息生成器</span></a></li></ol></div><div class="widget-footer"><a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ --><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/><path d="M7 3.338A9.95 9.95 0 0 1 12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12c0-1.821.487-3.53 1.338-5"/></g></svg><span>回到顶部</span></a></div></widget>
+</div></aside><div class='float-panel'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+
+
+<script type="text/javascript">
+  window.canonical = {"originalHost":null,"officialHosts":["localhost"],"encoded":""};
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+    tag_plugins: {
+      chat: Object.assign({"api":"https://siteinfo.listentothewind.cn/api/v1"}),
+    }
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"skip_search":null,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+    loading: `https://api.iconify.design/eos-icons:three-dots-loading.svg?color=%231cd0fd`,
+  };
+  const deps = {
+    jquery: `https://gcore.jsdelivr.net/npm/jquery@3.7/dist/jquery.min.js`,
+    marked: `https://gcore.jsdelivr.net/npm/marked@13.0/lib/marked.umd.min.js`,
+    lazyload: `/%5Bobject%20Object%5D`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  
+  function RunItem() {
+    this.list = []; // 存放回调函数
+    this.start = () => {
+      for (var i = 0; i < this.list.length; i++) {
+        this.list[i].run();
+      }
+    };
+    this.push = (fn, name, setRequestAnimationFrame = true) => {
+      let myfn = fn
+      if (setRequestAnimationFrame) {
+        myfn = () => {
+          utils.requestAnimationFrame(fn)
+        }
+      }
+      var f = new Item(myfn, name);
+      this.list.push(f);
+    };
+    this.remove = (name) => {
+      for (let index = 0; index < this.list.length; index++) {
+        const e = this.list[index];
+        if (e.name == name) {
+          this.list.splice(index, 1);
+        }
+      }
+    }
+    // 构造一个可以run的对象
+    function Item(fn, name) {
+      // 函数名称
+      this.name = name || fn.name;
+      // run方法
+      this.run = () => {
+        try {
+          fn()
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    }
+  }
+
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')) {
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function () {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      const maxRetry = 3;
+      let retryCount = 0;
+
+      return new Promise((resolve, reject) => {
+        const load = () => {
+          utils.onLoading?.(el);
+
+          let timedOut = false;
+          const timeout = setTimeout(() => {
+            timedOut = true;
+            console.warn('[request] 超时:', url);
+
+            if (++retryCount >= maxRetry) {
+              utils.onLoadFailure?.(el);
+              onFailure?.();
+              reject('请求超时');
+            } else {
+              setTimeout(load, 1000);
+            }
+          }, 5000);
+
+          fetch(url).then(resp => {
+            if (timedOut) return;
+            clearTimeout(timeout);
+
+            if (!resp.ok) throw new Error('响应失败');
+            return resp;
+          }).then(data => {
+            if (timedOut) return;
+            utils.onLoadSuccess?.(el);
+            callback(data);
+            resolve(data);
+          }).catch(err => {
+            clearTimeout(timeout);
+            console.warn('[request] 错误:', err);
+
+            if (++retryCount >= maxRetry) {
+              utils.onLoadFailure?.(el);
+              onFailure?.();
+              reject(err);
+            } else {
+              setTimeout(load, 1000);
+            }
+          });
+        };
+
+        load();
+      });
+    },
+    requestWithoutLoading: (url, options = {}, maxRetry = 2, timeout = 5000) => {
+      return new Promise((resolve, reject) => {
+        let retryCount = 0;
+
+        const tryRequest = () => {
+          let timedOut = false;
+          const timer = setTimeout(() => {
+            timedOut = true;
+            if (++retryCount > maxRetry) reject('timeout');
+            else tryRequest();
+          }, timeout);
+
+          fetch(url, options)
+            .then(resp => {
+              clearTimeout(timer);
+              if (!resp.ok) throw new Error('bad response');
+              resolve(resp);
+            })
+            .catch(err => {
+              clearTimeout(timer);
+              if (++retryCount > maxRetry) reject(err);
+              else setTimeout(tryRequest, 500);
+            });
+        };
+
+        tryRequest();
+      });
+    },
+    /********************** requestAnimationFrame ********************************/
+    // 1、requestAnimationFrame 会把每一帧中的所有 DOM 操作集中起来，在一次重绘或回流中就完成，并且重绘或回流的时间间隔紧紧跟随浏览器的刷新频率，一般来说，这个频率为每秒60帧。
+    // 2、在隐藏或不可见的元素中，requestAnimationFrame 将不会进行重绘或回流，这当然就意味着更少的的 cpu，gpu 和内存使用量。
+    requestAnimationFrame: (fn) => {
+      if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+      }
+      window.requestAnimationFrame(fn)
+    },
+    dark: {},
+  };
+
+  // utils.dark.mode 当前模式 dark or light
+  // utils.dark.toggle() 暗黑模式触发器
+  // utils.dark.push(callBack[,"callBackName"]) 传入触发器回调函数
+  utils.dark.method = {
+    toggle: new RunItem(),
+  };
+  utils.dark = Object.assign(utils.dark, {
+    push: utils.dark.method.toggle.push,
+  });
+</script>
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+<script type="text/javascript">
+  (() => {
+    const tagSwitchers = document.querySelectorAll('.tag-subtree.parent-tag > a > .tag-switcher-wrapper')
+    for (const tagSwitcher of tagSwitchers) {
+      tagSwitcher.addEventListener('click', (e) => {
+        const parent = e.target.closest('.tag-subtree.parent-tag')
+        parent.classList.toggle('expanded')
+        e.preventDefault()
+      })
+    }
+
+    // Get active tag from query string, then activate it.
+    const urlParams = new URLSearchParams(window.location.search)
+    const activeTag = urlParams.get('tag')
+    if (activeTag) {
+      let tag = document.querySelector(`.tag-subtree[data-tag="${activeTag}"]`)
+      if (tag) {
+        tag.querySelector('a').classList.add('active')
+        
+        while (tag) {
+          tag.classList.add('expanded')
+          tag = tag.parentElement.closest('.tag-subtree.parent-tag')
+        }
+      }
+    }
+  })()
+</script>
+
+<script async src="https://gcore.jsdelivr.net/npm/vanilla-lazyload@19.1/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+    callback_loaded: (el) => {
+      el.classList.add('loaded');
+      const wrapper = el.closest('.lazy-box');
+      const icon = wrapper?.querySelector('.lazy-icon');
+      if (icon) icon.remove();
+    }
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+
+  window.wrapLazyloadImages = (container) => {
+    if (typeof container === 'string') {
+      container = document.querySelector(container);
+    }
+    if (!container) return;
+    
+    const images = container.querySelectorAll('img');
+    images.forEach((img) => {
+      if (img.classList.contains('lazy')) return;
+
+      const src = img.getAttribute('src');
+      if (!src) return;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'lazy-box';
+
+      const newImg = img.cloneNode();
+      newImg.removeAttribute('src');
+      newImg.setAttribute('data-src', src);
+      newImg.classList.add('lazy');
+
+      const icon = document.createElement('div');
+      icon.className = 'lazy-icon';
+      if (def.loading) {
+        icon.style.backgroundImage = `url("${def.loading}")`;
+      }
+
+      wrapper.appendChild(newImg);
+      wrapper.appendChild(icon);
+
+      img.replaceWith(wrapper);
+    });
+
+    // 通知 LazyLoad 更新
+    if (window.lazyLoadInstance?.update) {
+      window.lazyLoadInstance.update();
+    }
+  }
+  
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.33.1" defer></script>
+
+<script type="text/javascript">
+  const applyTheme = (theme) => {
+    if (theme === 'auto') {
+      document.documentElement.removeAttribute('data-theme')
+    } else {
+      document.documentElement.setAttribute('data-theme', theme)
+    }
+
+    // applyThemeToGiscus(theme)
+  }
+
+  // FIXME: 这会导致无法使用 preferred_color_scheme 以外的主题
+  const applyThemeToGiscus = (theme) => {
+    // theme = theme === 'auto' ? 'preferred_color_scheme' : theme
+    const cmt = document.getElementById('giscus')
+    if (cmt) {
+      // This works before giscus load.
+      cmt.setAttribute('data-theme', theme)
+    }
+
+    const iframe = document.querySelector('#comments > section.giscus > iframe')
+    if (iframe) {
+      // This works after giscus loaded.
+      const src = iframe.src
+      const newSrc = src.replace(/theme=[\w]+/, `theme=${theme}`)
+      iframe.src = newSrc
+    }
+  }
+
+  const switchTheme = () => {
+    // light -> dark -> auto -> light -> ...
+    const currentTheme = document.documentElement.getAttribute('data-theme')
+    let newTheme;
+    switch (currentTheme) {
+      case 'light':
+        newTheme = 'dark'
+        break
+      case 'dark':
+        newTheme = 'auto'
+        break
+      default:
+        newTheme = 'light'
+    }
+    applyTheme(newTheme)
+    window.localStorage.setItem('Stellar.theme', newTheme)
+    utils.dark.mode = newTheme === 'auto' ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : newTheme;
+    utils.dark.method.toggle.start();
+
+    const messages = {
+      light: `切换到浅色模式`,
+      dark: `切换到深色模式`,
+      auto: `切换到跟随系统配色`,
+    }
+    hud?.toast?.(messages[newTheme])
+  }
+
+  (() => {
+    // Apply user's preferred theme, if any.
+    const theme = window.localStorage.getItem('Stellar.theme')
+    if (theme !== null) {
+      applyTheme(theme)
+    } else {
+      utils.dark.mode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    utils.dark.method.toggle.start();
+  })()
+</script>
+
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"rating":{"js":"/js/services/rating.js","api":"https://star-vote.xaox.cc/api/rating"},"vote":{"js":"/js/services/vote.js","api":"https://star-vote.xaox.cc/api/vote"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"friends_and_posts":{"js":"/js/services/friends_and_posts.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"},"voice":{"js":"/js/plugins/voice.js"},"video":{"js":"/js/plugins/video.js"},"download-file":{"js":"/js/plugins/download-file.js"},"twikoo":{"js":"/js/services/twikoo_latest_comment.js"},"waline":{"js":"/js/services/waline_latest_comment.js"},"artalk":{"js":"/js/services/artalk_latest_comment.js"},"giscus":{"js":"/js/services/giscus_latest_comment.js"},"contributors":{"edit_this_page":{"_posts/":null,"wiki/stellar/":"https://github.com/xaoxuu/hexo-theme-stellar-docs/blob/main/"},"js":"/js/services/contributors.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else if (id == 'voice') {
+        ctx.voiceAudios = document.querySelectorAll('.voice>audio');
+        if (ctx.voiceAudios?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            createVoiceDom(ctx.voiceAudios);
+          });
+        }
+      } else if (id == 'video') {
+        ctx.videos = document.querySelectorAll('.video>video');
+        if (ctx.videos?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            videoEvents(ctx.videos);
+          });
+        }
+      } else if (id == 'download-file') {
+        ctx.files = document.querySelectorAll('.file');
+        if (ctx.files?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            downloadFileEvent(ctx.files);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+
+    // chat iphone time
+    let phoneTimes = document.querySelectorAll('.chat .status-bar .time');
+
+    if (phoneTimes.length > 0) {
+      NowTime();
+      var date = new Date();
+      var sec = date.getSeconds();
+      var firstAdjustInterval = setInterval(firstAdjustTime, 1000 * (60 - sec));
+    }
+
+    function firstAdjustTime() {
+      NowTime();
+      clearInterval(firstAdjustInterval);
+      setInterval(NowTime, 1000 * 60);
+    }
+
+    function NowTime() {
+      for (let i = 0; i < phoneTimes.length; ++i) {
+        var timeSpan = phoneTimes[i];
+        var date = new Date();
+        var hour = date.getHours();
+        var min = date.getMinutes();
+        timeSpan.innerHTML = check(hour) + ":" + check(min);
+      }
+    };
+
+    function check(val) {
+      if (val < 10) {
+        return ("0" + val);
+      }
+      return (val);
+    }
+
+    // chat quote
+    const chat_quote_obverser = new IntersectionObserver((entries, observer) => {
+      entries.filter((entry) => { return entry.isIntersecting }).sort((a, b) => a.intersectionRect.y !== b.intersectionRect.y ? a.intersectionRect.y - b.intersectionRect.y : a.intersectionRect.x - b.intersectionRect.x).forEach((entry, index) => {
+          observer.unobserve(entry.target);
+          setTimeout(() => {
+            entry.target.classList.add('quote-blink');
+            setTimeout(() => {
+              entry.target.classList.remove('quote-blink');
+            }, 1000);
+          }, Math.max(100, 16) * (index + 1));
+        });
+    });
+
+    var chatQuotes = document.querySelectorAll(".chat .talk .quote");
+    chatQuotes.forEach((quote) => {
+      quote.addEventListener('click', function () {
+        var chatCellDom = document.getElementById("quote-" + quote.getAttribute("quotedCellTag"));
+        if (chatCellDom) {
+          var chatDiv = chatCellDom.parentElement;
+          var mid = chatDiv.clientHeight / 2;
+          var offsetTop = chatCellDom.offsetTop;
+          if (offsetTop > mid - chatCellDom.clientHeight / 2) {
+            chatDiv.scrollTo({
+              top: chatCellDom.offsetTop - mid + chatCellDom.clientHeight / 2,
+              behavior: "smooth"
+            });
+          } else {
+            chatDiv.scrollTo({
+              top: 0,
+              behavior: "smooth"
+            });
+          }
+          chat_quote_obverser.observe(chatCellDom);
+        }
+      });
+    });
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://gcore.jsdelivr.net/npm/flying-pages@2/flying-pages.min.js"></script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://gcore.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css`,
+    js: `https://gcore.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js`
+  };
+  var selector = '[data-fancybox]:not(.error), .with-fancybox .atk-content img:not([atk-emoticon])';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const memos = document.getElementsByClassName('ds-memos');
+    if (memos != undefined && memos.length > 0) {
+      needFancybox = true;
+    }
+    const fancybox = document.getElementsByClassName('with-fancybox');
+    if (fancybox != undefined && fancybox.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div></body></html>
