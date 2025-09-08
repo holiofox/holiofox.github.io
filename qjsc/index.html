@@ -30,6 +30,34 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 
+      /* 页面切换按钮样式 */
+      .page-switcher {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+        background-color: #f0f0f0;
+        border-radius: 8px;
+        padding: 4px;
+      }
+
+      .page-switch-btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        background-color: transparent;
+        color: #666;
+      }
+
+      .page-switch-btn.active {
+        background-color: #2196f3;
+        color: white;
+      }
+
       /* 新增常用链接样式 */
       .quick-links {
         display: flex;
@@ -235,6 +263,12 @@
   </head>
   <body>
     <div class="container">
+      <!-- 页面切换按钮 -->
+      <div class="page-switcher">
+        <button class="page-switch-btn active">请假信息</button>
+        <button class="page-switch-btn" onclick="window.location.href='../pbb/'">排班表</button>
+      </div>
+
       <h2>主管常用表格</h2>
 
       <!-- 新增常用链接栏目 -->
@@ -247,7 +281,7 @@
         </button>
         <button
           class="quick-link-btn"
-          onclick="window.location.href='https://docs.qq.com/sheet/DS2poZEhocEFEb1pS?tab=zwbgiy'"
+          onclick="window.location.href='https://docs.qq.com/sheet/DT3BybE9xWG1tU3h2?tab=wq4slh'"
         >
           空岗表
         </button>
