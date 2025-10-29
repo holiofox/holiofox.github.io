@@ -213,6 +213,58 @@
         color: white;
       }
 
+      /* 日期按钮样式 */
+      .date-buttons {
+        display: grid;
+        gap: 8px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+      }
+
+      .date-buttons:first-of-type {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .date-buttons:last-of-type {
+        grid-template-columns: repeat(7, 1fr);
+      }
+
+      .date-btn {
+        padding: 12px 8px;
+        background-color: #f0f0f0;
+        color: #333;
+        font-size: 0.95rem;
+        font-weight: 600;
+        width: 100%;
+      }
+
+      .date-btn.selected {
+        background-color: #2196f3;
+        color: white;
+      }
+
+      /* 班次按钮样式 */
+      .shift-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .shift-btn {
+        padding: 12px;
+        background-color: #f0f0f0;
+        color: #333;
+        font-size: 1rem;
+        font-weight: 600;
+        width: 100%;
+      }
+
+      .shift-btn.selected {
+        background-color: #2196f3;
+        color: white;
+      }
+
       .result {
         margin-top: 24px;
         padding: 16px;
@@ -275,31 +327,31 @@
       <div class="quick-links">
         <button
           class="quick-link-btn"
-          onclick="window.location.href='https://docs.qq.com/sheet/DT3RzTGV6aXJIb2Nx?tab=k4nhbo'"
+          onclick="window.open('https://docs.qq.com/sheet/DT3RzTGV6aXJIb2Nx?tab=k4nhbo')"
         >
           排班表
         </button>
         <button
           class="quick-link-btn"
-          onclick="window.location.href='https://docs.qq.com/sheet/DT3BybE9xWG1tU3h2?tab=wq4slh'"
+          onclick="window.open('https://docs.qq.com/sheet/DT3BybE9xWG1tU3h2?tab=wq4slh')"
         >
           空岗表
         </button>
         <button
           class="quick-link-btn"
-          onclick="window.location.href='https://docs.qq.com/sheet/DVVpLd0ZTRnhLa1Fz'"
+          onclick="window.open('https://docs.qq.com/sheet/DVVpLd0ZTRnhLa1Fz')"
         >
           裸辞表
         </button>
         <button
           class="quick-link-btn"
-          onclick="window.location.href='https://docs.qq.com/sheet/DS0pWdlRvRkl0bG5Q'"
+          onclick="window.open('https://docs.qq.com/sheet/DS0pWdlRvRkl0bG5Q')"
         >
           黑名单
         </button>
         <button
           class="quick-link-btn"
-          onclick="window.location.href='https://docs.qq.com/aio/DY0xVV0pTcUNackRR'"
+          onclick="window.open('https://docs.qq.com/aio/DY0xVV0pTcUNackRR')"
         >
           常见问题
         </button>
@@ -307,18 +359,8 @@
       <h2>请假信息生成器</h2>
       <div class="form-group">
         <label>日期标记</label>
-        <select id="datePrefix" onchange="updateDate()">
-          <option value="今天">今天</option>
-          <option value="明天">明天</option>
-          <option value="后天">后天</option>
-          <option value="本周一">周一</option>
-          <option value="本周二">周二</option>
-          <option value="本周三">周三</option>
-          <option value="本周四">周四</option>
-          <option value="本周五">周五</option>
-          <option value="本周六">周六</option>
-          <option value="本周日">周日</option>
-        </select>
+        <div class="date-buttons" id="quickDateButtons"></div>
+        <div class="date-buttons" id="weekDateButtons"></div>
       </div>
       <div class="form-group">
         <label>具体日期</label>
@@ -326,11 +368,11 @@
       </div>
       <div class="form-group">
         <label>班次</label>
-        <select id="shift">
-          <option value="早班">早班</option>
-          <option value="午班">午班</option>
-          <option value="晚班">晚班</option>
-        </select>
+        <div class="shift-buttons">
+          <button class="shift-btn" onclick="selectShift('早班')">早班</button>
+          <button class="shift-btn" onclick="selectShift('午班')">午班</button>
+          <button class="shift-btn" onclick="selectShift('晚班')">晚班</button>
+        </div>
       </div>
       <div class="form-group">
         <label>楼栋号</label>
@@ -372,6 +414,8 @@
 
     <script>
       let selectedPosition = "";
+      let selectedShift = "";
+      let selectedDatePrefix = "";
 
       function initializePositionGrid() {
         const grid = document.getElementById("position-grid");
@@ -397,6 +441,47 @@
         }
       }
 
+      function initializeDateButtons() {
+        const quickDates = ['今天', '明天', '后天'];
+        const weekDates = ['本周一', '本周二', '本周三', '本周四', '本周五', '本周六', '本周日'];
+        const weekLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+        
+        const quickDateButtons = document.getElementById("quickDateButtons");
+        quickDates.forEach(date => {
+          const btn = document.createElement("button");
+          btn.className = "date-btn";
+          btn.textContent = date;
+          btn.dataset.value = date;
+          btn.onclick = () => selectDate(date);
+          quickDateButtons.appendChild(btn);
+        });
+
+        const weekDateButtons = document.getElementById("weekDateButtons");
+        weekDates.forEach((date, index) => {
+          const btn = document.createElement("button");
+          btn.className = "date-btn";
+          btn.textContent = weekLabels[index];
+          btn.dataset.value = date;
+          btn.onclick = () => selectDate(date);
+          weekDateButtons.appendChild(btn);
+        });
+      }
+
+      function selectDate(datePrefix) {
+        selectedDatePrefix = datePrefix;
+        // 清除所有按钮的选中状态
+        document.querySelectorAll(".date-btn").forEach((btn) => {
+          btn.classList.remove("selected");
+        });
+        // 给对应的按钮添加选中状态
+        document.querySelectorAll(".date-btn").forEach((btn) => {
+          if (btn.dataset.value === datePrefix) {
+            btn.classList.add("selected");
+          }
+        });
+        updateDate();
+      }
+
       function toggleTempTimeGroup() {
         const leaveType = document.getElementById("leaveType").value;
         const tempTimeGroup = document.getElementById("tempTimeGroup");
@@ -415,6 +500,16 @@
         document.getElementById(
           "selected-position"
         ).textContent = `已选择: ${position}`;
+      }
+
+      function selectShift(shift) {
+        selectedShift = shift;
+        document.querySelectorAll(".shift-btn").forEach((btn) => {
+          btn.classList.remove("selected");
+          if (btn.textContent === shift) {
+            btn.classList.add("selected");
+          }
+        });
       }
 
       function getDateOfWeek(dayName) {
@@ -449,7 +544,7 @@
       }
 
       function updateDate() {
-        const datePrefix = document.getElementById("datePrefix").value;
+        const datePrefix = selectedDatePrefix;
         let dateStr;
 
         if (datePrefix.startsWith("本周")) {
@@ -470,7 +565,6 @@
         let diffMinutes =
           endHours * 60 + endMinutes - (startHours * 60 + startMinutes);
 
-        // 如果结束时间小于开始时间，假设跨天，加24小时
         if (diffMinutes < 0) {
           diffMinutes += 24 * 60;
         }
@@ -479,13 +573,13 @@
       }
 
       function generateMessage() {
-        const datePrefix = document.getElementById("datePrefix").value;
+        const datePrefix = selectedDatePrefix;
         const date = document.getElementById("date").value;
-        const shift = document.getElementById("shift").value;
+        const shift = selectedShift;
         const name = document.getElementById("name").value;
         const leaveType = document.getElementById("leaveType").value;
 
-        if (!selectedPosition || !name) {
+        if (!selectedPosition || !name || !shift || !datePrefix) {
           alert("请填写完整信息！");
           return;
         }
@@ -530,9 +624,13 @@
       }
 
       window.onload = function () {
+        initializeDateButtons();
+        selectedDatePrefix = "今天";
         updateDate();
         initializePositionGrid();
         toggleTempTimeGroup();
+        // 初始化选中"今天"按钮
+        selectDate("今天");
       };
     </script>
   </body>
