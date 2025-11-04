@@ -311,9 +311,135 @@
       #tempTimeGroup {
         display: none;
       }
+
+      /* 开屏公告样式 */
+.announcement-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.announcement-modal {
+  background-color: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.announcement-header {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #2196f3;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.announcement-content {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.announcement-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.announcement-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.announcement-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+  appearance: auto;
+  -webkit-appearance: auto;
+}
+
+.announcement-checkbox label {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #666;
+  cursor: pointer;
+  display: inline;
+  font-weight: normal;
+}
+
+.announcement-close-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.announcement-close-btn:active {
+  background-color: #1976d2;
+}
     </style>
   </head>
   <body>
+    <!-- 开屏公告 -->
+<div id="announcementOverlay" class="announcement-overlay" style="display: none;">
+  <div class="announcement-modal">
+    <div class="announcement-header">📢 系统公告</div>
+    <div class="announcement-content">
+      <p><strong>欢迎使用公寓岗小助手！</strong></p>
+      <p>本系统可帮助您快速生成请假信息和查看排班表。</p>
+      <p><strong>最新更新：</strong></p>
+      <ul>
+        <li>优化日期选择体验</li>
+        <li>不再使用下拉框</li>
+        <li>优化界面ui展示</li>
+      </ul>
+      <p>如有问题,请联系fufu。</p>
+    </div>
+    <div class="announcement-footer">
+      <div class="announcement-checkbox">
+        <input type="checkbox" id="dontShowAgain">
+        <label for="dontShowAgain">不再显示此公告</label>
+      </div>
+      <button class="announcement-close-btn" onclick="closeAnnouncement()">我知道了</button>
+    </div>
+  </div>
+</div>
     <div class="container">
       <!-- 页面切换按钮 -->
       <div class="page-switcher">
@@ -631,7 +757,26 @@
         toggleTempTimeGroup();
         // 初始化选中"今天"按钮
         selectDate("今天");
+
+        // 显示开屏公告
+        showAnnouncement();
       };
+
+      // 开屏公告相关函数
+function showAnnouncement() {
+  const dontShow = localStorage.getItem('hideAnnouncement');
+  if (!dontShow) {
+    document.getElementById('announcementOverlay').style.display = 'flex';
+  }
+}
+
+function closeAnnouncement() {
+  const dontShowAgain = document.getElementById('dontShowAgain').checked;
+  if (dontShowAgain) {
+    localStorage.setItem('hideAnnouncement', 'true');
+  }
+  document.getElementById('announcementOverlay').style.display = 'none';
+}
     </script>
   </body>
 </html>
